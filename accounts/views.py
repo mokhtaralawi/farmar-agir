@@ -38,7 +38,7 @@ def profile_view(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'change_username':
-            new_username = request.POST.get('username', '').strip()
+            new_username = unicodedata.normalize('NFC', request.POST.get('username', '').strip())
             if not new_username:
                 messages.error(request, 'يرجى إدخال اسم مستخدم')
             elif new_username == request.user.username:
@@ -85,7 +85,7 @@ def user_create(request):
         return redirect('reports:dashboard')
     roles = Role.objects.filter(is_active=True)
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
+        username = unicodedata.normalize('NFC', request.POST.get('username', '').strip())
         full_name = request.POST.get('full_name', '').strip()
         phone = request.POST.get('phone', '')
         password = request.POST.get('password', '')
