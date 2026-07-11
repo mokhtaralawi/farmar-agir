@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}{% if mode == 'edit' %}تعديل{% else %}إضافة{% endif %} مستخدم - جسر الزراعة{% endblock %}
+{% block title %}{% if mode == 'edit' %}تعديل{% else %}إضافة{% endif %} مستخدم - نظام البيع للمجابرة الزراعة{% endblock
+%}
 {% block content %}
 
 <h2 style="margin-bottom:20px;">
@@ -14,29 +15,26 @@
         <div class="form-row">
             <div class="form-group">
                 <label>اسم المستخدم *</label>
-                <input type="text" name="username" class="form-control" required
-                       value="{{ u.username|default:'' }}"
-                       {% if mode == 'edit' %}readonly style="background:#f0f0f0;"{% endif %}
-                       placeholder="اسم المستخدم">
+                <input type="text" name="username" class="form-control" required value="{{ u.username|default:'' }}" {%
+                    if mode=='edit' %}readonly style="background:#f0f0f0;" {% endif %} placeholder="اسم المستخدم">
             </div>
             <div class="form-group">
                 <label>الاسم الكامل</label>
-                <input type="text" name="full_name" class="form-control"
-                       value="{{ u.full_name|default:'' }}" placeholder="الاسم الكامل">
+                <input type="text" name="full_name" class="form-control" value="{{ u.full_name|default:'' }}"
+                    placeholder="الاسم الكامل">
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label>رقم الهاتف</label>
-                <input type="text" name="phone" class="form-control"
-                       value="{{ u.phone|default:'' }}" placeholder="05xxxxxxxx">
+                <input type="text" name="phone" class="form-control" value="{{ u.phone|default:'' }}"
+                    placeholder="05xxxxxxxx">
             </div>
             <div class="form-group">
                 <label>كلمة المرور {% if mode == 'edit' %}(اترك فارغاً بدون تغيير){% endif %} *</label>
-                <input type="password" name="password" class="form-control"
-                       {% if mode == 'create' %}required{% endif %}
-                       placeholder="{% if mode == 'create' %}كلمة المرور{% else %}كلمة مرور جديدة{% endif %}">
+                <input type="password" name="password" class="form-control" {% if mode=='create' %}required{% endif %}
+                    placeholder="{% if mode == 'create' %}كلمة المرور{% else %}كلمة مرور جديدة{% endif %}">
             </div>
         </div>
 
@@ -44,9 +42,10 @@
             <label>الأدوار</label>
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:5px;">
                 {% for role in roles %}
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:8px 12px;border:1px solid #ddd;border-radius:8px;{% if role.id in user_role_ids %}background:#e8f5e9;border-color:#4CAF50;{% endif %}">
-                    <input type="checkbox" name="roles" value="{{ role.id }}"
-                           {% if role.id in user_role_ids %}checked{% endif %}>
+                <label
+                    style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:8px 12px;border:1px solid #ddd;border-radius:8px;{% if role.id in user_role_ids %}background:#e8f5e9;border-color:#4CAF50;{% endif %}">
+                    <input type="checkbox" name="roles" value="{{ role.id }}" {% if role.id in user_role_ids %}checked{%
+                        endif %}>
                     {{ role.name }}
                 </label>
                 {% endfor %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}المستخدمين - جسر الزراعة{% endblock %}
+{% block title %}المستخدمين - نظام البيع للمجابرة الزراعة{% endblock %}
 {% block content %}
 
 <h2 style="margin-bottom:20px;"><i class="bi bi-people-fill"></i> إدارة المستخدمين</h2>
@@ -48,14 +48,16 @@
                 </a>
                 {% if not u.is_superuser or u.id == request.user.id %}
                 <a href="{% url 'accounts:user_toggle_active' u.id %}" class="btn btn-sm btn-light"
-                   onclick="return confirm('تأكيد {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %} المستخدم؟')">
+                    onclick="return confirm('تأكيد {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %} المستخدم؟')">
                     <i class="bi bi-{% if u.is_active %}lock{% else %}unlock{% endif %}"></i>
                 </a>
                 {% endif %}
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" style="text-align:center;">لا يوجد مستخدمين</td></tr>
+        <tr>
+            <td colspan="7" style="text-align:center;">لا يوجد مستخدمين</td>
+        </tr>
         {% endfor %}
     </table>
 </div>
