@@ -106,10 +106,10 @@
             <p>نظام إدارة سوق الخضروات والفواكه بالجملة</p>
         </div>
         
-        {% if form.errors %}
-            <div class="alert alert-error">
-                اسم المستخدم أو كلمة المرور غير صحيحة
-            </div>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-error">{{ message }}</div>
+            {% endfor %}
         {% endif %}
         
         <form method="post">
@@ -120,12 +120,30 @@
             </div>
             <div class="form-group">
                 <label><i class="bi bi-lock"></i> كلمة المرور</label>
-                <input type="password" name="password" required placeholder="أدخل كلمة المرور">
+                <div class="password-wrapper">
+                    <input type="password" name="password" id="passwordInput" required placeholder="أدخل كلمة المرور">
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="btn-login">
                 <i class="bi bi-box-arrow-in-right"></i> تسجيل الدخول
             </button>
         </form>
     </div>
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
 </body>
 </html>
