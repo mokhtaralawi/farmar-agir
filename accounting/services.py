@@ -157,7 +157,7 @@ class AccountingService:
     @staticmethod
     @transaction.atomic
     def create_receiving_entry(invoice, user):
-        """إنشاء قيد استلام من مزارع"""
+        """إنشاء قيد استلام من رعوي"""
         from core.models import Account
         entries = [
             {
@@ -170,7 +170,7 @@ class AccountingService:
                 'account_id': Account.objects.filter(name__icontains='الرعويون').first().id,
                 'debit': 0,
                 'credit': invoice.total_amount,
-                'description': f"مستحقات مزارع - {invoice.farmer.name}",
+                'description': f"مستحقات رعوي - {invoice.farmer.name}",
                 'partner': invoice.farmer,
                 'partner_type': 'FARMER',
                 'partner_id': invoice.farmer.id,
@@ -213,7 +213,7 @@ class AccountingService:
             },
         ]
         return AccountingService.create_entry(
-            description=f"بيع للبائع {invoice.buyer.name}",
+            description=f"بيع للمقوت {invoice.buyer.name}",
             reference_type='SALES',
             reference_id=invoice.id,
             user=user,
@@ -236,7 +236,7 @@ class AccountingService:
                 'account_id': Account.objects.filter(name__icontains='المقاوته').first().id,
                 'debit': 0,
                 'credit': receipt.amount,
-                'description': f"تحصيل من بائع - {receipt.buyer.name}",
+                'description': f"تحصيل من مقوت - {receipt.buyer.name}",
                 'partner': receipt.buyer,
                 'partner_type': 'BUYER',
                 'partner_id': receipt.buyer.id,
@@ -269,7 +269,7 @@ class AccountingService:
                 'account_id': Account.objects.filter(name__icontains='الصندوق').first().id,
                 'debit': 0,
                 'credit': voucher.amount,
-                'description': f"صرف لمزارع - {voucher.farmer.name}",
+                'description': f"صرف لرعوي - {voucher.farmer.name}",
             },
         ]
         return AccountingService.create_entry(

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}قيد جديد - نظام     البيع للمجابرة{% endblock %}
+{% block title %}قيد جديد - نظام البيع للمجابرة{% endblock %}
 {% block content %}
 
 <h2 style="margin-bottom:20px;"><i class="bi bi-journal-text"></i> قيد محاسبي جديد</h2>
@@ -7,7 +7,7 @@
 <div class="card">
     <form method="post" id="entryForm">
         {% csrf_token %}
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label>التاريخ *</label>
@@ -18,11 +18,11 @@
                 <input type="text" name="description" class="form-control" required placeholder="وصف القيد">
             </div>
         </div>
-        
+
         <hr style="margin:20px 0;">
-        
+
         <h3 style="margin-bottom:15px;">سطور القيد</h3>
-        
+
         <table class="data-table" id="linesTable">
             <tr>
                 <th>الحساب</th>
@@ -48,27 +48,29 @@
                 <td>
                     <select name="lines[]" class="form-control partner-type">
                         <option value="">بدون</option>
-                        <option value="FARMER">مزارع</option>
-                        <option value="BUYER">بائع</option>
+                        <option value="FARMER">رعوي</option>
+                        <option value="BUYER">مقوت</option>
                     </select>
                 </td>
                 <td><input type="number" name="lines[]" class="form-control partner-id" min="0"></td>
-                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeLine(this)"><i class="bi bi-trash"></i></button></td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeLine(this)"><i
+                            class="bi bi-trash"></i></button></td>
             </tr>
         </table>
-        
+
         <div style="margin-top:15px;display:flex;gap:10px;">
-            <button type="button" class="btn btn-light" onclick="addLine()"><i class="bi bi-plus-lg"></i> إضافة سطر</button>
+            <button type="button" class="btn btn-light" onclick="addLine()"><i class="bi bi-plus-lg"></i> إضافة
+                سطر</button>
         </div>
-        
+
         <hr style="margin:20px 0;">
-        
+
         <div style="display:flex;gap:30px;justify-content:center;font-size:18px;font-weight:700;">
             <span style="color:#2E7D32;">المدين: <span id="totalDebit">0</span></span>
             <span style="color:#C62828;">الدائن: <span id="totalCredit">0</span></span>
             <span id="balanceCheck" style="color:gray;">فرق: 0</span>
         </div>
-        
+
         <div style="margin-top:20px;text-align:center;">
             <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
                 <i class="bi bi-check-lg"></i> حفظ القيد
@@ -78,60 +80,60 @@
 </div>
 
 <script>
-function addLine() {
-    const table = document.getElementById('linesTable');
-    const lastRow = table.querySelector('.line-row:last-child');
-    const newRow = lastRow.cloneNode(true);
-    newRow.querySelectorAll('input').forEach(el => el.value = '');
-    newRow.querySelector('.account-select').value = '';
-    newRow.querySelector('.partner-type').value = '';
-    table.appendChild(newRow);
-    attachListeners(newRow);
-}
-
-function removeLine(btn) {
-    const table = document.getElementById('linesTable');
-    if (table.querySelectorAll('.line-row').length > 1) {
-        btn.closest('tr').remove();
-        updateTotals();
+    function addLine() {
+        const table = document.getElementById('linesTable');
+        const lastRow = table.querySelector('.line-row:last-child');
+        const newRow = lastRow.cloneNode(true);
+        newRow.querySelectorAll('input').forEach(el => el.value = '');
+        newRow.querySelector('.account-select').value = '';
+        newRow.querySelector('.partner-type').value = '';
+        table.appendChild(newRow);
+        attachListeners(newRow);
     }
-}
 
-function attachListeners(row) {
-    row.querySelector('.debit').addEventListener('input', updateTotals);
-    row.querySelector('.credit').addEventListener('input', updateTotals);
-}
-
-function updateTotals() {
-    let debit = 0, credit = 0;
-    document.querySelectorAll('.line-row').forEach(row => {
-        debit += parseFloat(row.querySelector('.debit').value) || 0;
-        credit += parseFloat(row.querySelector('.credit').value) || 0;
-    });
-    document.getElementById('totalDebit').textContent = debit.toFixed(2);
-    document.getElementById('totalCredit').textContent = credit.toFixed(2);
-    const diff = debit - credit;
-    document.getElementById('balanceCheck').textContent = `فرق: ${diff.toFixed(2)}`;
-    document.getElementById('balanceCheck').style.color = diff === 0 ? '#2E7D32' : '#C62828';
-}
-
-document.querySelectorAll('.line-row').forEach(attachListeners);
-
-document.getElementById('entryForm').addEventListener('submit', function(e) {
-    const rows = document.querySelectorAll('.line-row');
-    const inputs = this.querySelectorAll('[name="lines[]"]');
-    let idx = 0;
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const selects = row.querySelectorAll('select');
-        const inputsRow = row.querySelectorAll('input');
-        if (selects.length >= 2 && inputsRow.length >= 4) {
-            const val = `${selects[0].value}|${inputsRow[0].value}|${inputsRow[1].value}|${inputsRow[2].value}|${selects[1].value}|${inputsRow[3].value}`;
-            inputs[idx].value = val;
-            idx++;
+    function removeLine(btn) {
+        const table = document.getElementById('linesTable');
+        if (table.querySelectorAll('.line-row').length > 1) {
+            btn.closest('tr').remove();
+            updateTotals();
         }
     }
-});
+
+    function attachListeners(row) {
+        row.querySelector('.debit').addEventListener('input', updateTotals);
+        row.querySelector('.credit').addEventListener('input', updateTotals);
+    }
+
+    function updateTotals() {
+        let debit = 0, credit = 0;
+        document.querySelectorAll('.line-row').forEach(row => {
+            debit += parseFloat(row.querySelector('.debit').value) || 0;
+            credit += parseFloat(row.querySelector('.credit').value) || 0;
+        });
+        document.getElementById('totalDebit').textContent = debit.toFixed(2);
+        document.getElementById('totalCredit').textContent = credit.toFixed(2);
+        const diff = debit - credit;
+        document.getElementById('balanceCheck').textContent = `فرق: ${diff.toFixed(2)}`;
+        document.getElementById('balanceCheck').style.color = diff === 0 ? '#2E7D32' : '#C62828';
+    }
+
+    document.querySelectorAll('.line-row').forEach(attachListeners);
+
+    document.getElementById('entryForm').addEventListener('submit', function (e) {
+        const rows = document.querySelectorAll('.line-row');
+        const inputs = this.querySelectorAll('[name="lines[]"]');
+        let idx = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const selects = row.querySelectorAll('select');
+            const inputsRow = row.querySelectorAll('input');
+            if (selects.length >= 2 && inputsRow.length >= 4) {
+                const val = `${selects[0].value}|${inputsRow[0].value}|${inputsRow[1].value}|${inputsRow[2].value}|${selects[1].value}|${inputsRow[3].value}`;
+                inputs[idx].value = val;
+                idx++;
+            }
+        }
+    });
 </script>
 
 {% endblock %}

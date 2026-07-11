@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('farmer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='partners.farmer', verbose_name='الرعوي')),
             ],
             options={
-                'verbose_name': 'تسوية مزارع',
+                'verbose_name': 'تسوية رعوي',
                 'verbose_name_plural': 'تسويات الرعية',
                 'ordering': ['-created_at'],
             },

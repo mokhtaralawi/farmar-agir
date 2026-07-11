@@ -4,7 +4,7 @@
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
     <h2><i class="bi bi-person-badge"></i> الرعويون</h2>
-    <a href="{% url 'partners:create_farmer' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> مزارع جديد</a>
+    <a href="{% url 'partners:create_farmer' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> رعوي جديد</a>
 </div>
 
 <div class="card">
@@ -41,7 +41,7 @@
         {% empty %}
         <tr>
             <td colspan="7" class="empty-state"><i class="bi bi-inbox"></i>
-                <p>لا يوجد مزارعون</p>
+                <p>لا يوجد رعويون</p>
             </td>
         </tr>
         {% endfor %}

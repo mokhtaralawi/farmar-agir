@@ -148,7 +148,7 @@ def print_sale(request, pk):
     </style></head><body>
     <div class="header"><h3>{settings.company_name}</h3><p>فاتورة بيع</p></div>
     <p style="text-align:center;font-size:9px;">رقم: {invoice.invoice_number}</p>
-    <p style="text-align:center;font-size:9px;">المقوت: {invoice.buyer.name}</p>
+    <p style="text-align:center;font-size:9px;">الرعوي: {invoice.buyer.name}</p>
     <p style="text-align:center;font-size:9px;">التاريخ: {invoice.date}</p>
     <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الإجمالي</th></tr></thead>
     <tbody>{''.join(f'<tr><td>{i.product.name}</td><td>{i.quantity}</td><td>{i.unit_price}</td><td>{i.discount}</td><td>{i.total}</td></tr>' for i in invoice.items.all())}</tbody></table>

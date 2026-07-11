@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')),
                 ('is_deleted', models.BooleanField(default=False, verbose_name='محذوف')),
                 ('bank', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.bank', verbose_name='الحساب البنكي')),
-                ('buyer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='partners.buyer', verbose_name='المقوت')),
+                ('buyer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='partners.buyer', verbose_name='الرعوي')),
                 ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='أنشأه')),
             ],
             options={

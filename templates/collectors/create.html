@@ -10,9 +10,9 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label>المقوت *</label>
+                <label>الرعوي *</label>
                 <select name="buyer" class="form-control" required>
-                    <option value="">اختر المقوت</option>
+                    <option value="">اختر الرعوي</option>
                     {% for buyer in buyers %}
                     <option value="{{ buyer.id }}">{{ buyer.code }} - {{ buyer.name }} (رصيد: {{ buyer.current_balance
                         }})</option>

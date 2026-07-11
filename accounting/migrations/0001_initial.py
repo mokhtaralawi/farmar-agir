@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=300, verbose_name='الوصف')),
                 ('debit', models.DecimalField(decimal_places=2, default=0, max_digits=15, verbose_name='المدين')),
                 ('credit', models.DecimalField(decimal_places=2, default=0, max_digits=15, verbose_name='الدائن')),
-                ('partner_type', models.CharField(blank=True, choices=[('FARMER', 'مزارع'), ('BUYER', 'بائع')], max_length=10, null=True, verbose_name='نوع الشريك')),
+                ('partner_type', models.CharField(blank=True, choices=[('FARMER', 'رعوي'), ('BUYER', 'مقوت')], max_length=10, null=True, verbose_name='نوع الشريك')),
                 ('partner_obj_id', models.PositiveIntegerField(blank=True, null=True, verbose_name='رقم الشريك')),
             ],
             options={

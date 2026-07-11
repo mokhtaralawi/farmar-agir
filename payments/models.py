@@ -67,7 +67,7 @@ class FarmerSettlement(models.Model):
     is_deleted = models.BooleanField(_('محذوف'), default=False)
 
     class Meta:
-        verbose_name = _('تسوية مزارع')
+        verbose_name = _('تسوية رعوي')
         verbose_name_plural = _('تسويات الرعية')
         ordering = ['-created_at']
 
@@ -76,7 +76,7 @@ class FarmerSettlement(models.Model):
 
 
 class DailySettlement(models.Model):
-    """التسوية اليومية للمزارع"""
+    """التسوية اليومية للرعوي"""
     farmer = models.ForeignKey('partners.Farmer', on_delete=models.CASCADE, verbose_name=_('الرعوي'))
     date = models.DateField(_('التاريخ'))
     received_value = models.DecimalField(_('قيمة المستلم'), max_digits=15, decimal_places=2, default=0)

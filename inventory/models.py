@@ -54,7 +54,7 @@ class InventoryMovement(models.Model):
         ('RECEIVED', _('استلام')),
         ('SOLD', _('بيع')),
         ('RETURN_IN', _('مرتجع إلى الرعوي')),
-        ('RETURN_OUT', _('مرتجع من المقوت')),
+        ('RETURN_OUT', _('مرتجع من الرعوي')),
         ('DAMAGED', _('تالف')),
         ('WASTED', _('هالك')),
         ('LOST', _('مفقود')),

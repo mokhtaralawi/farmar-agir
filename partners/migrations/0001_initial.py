@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')),
             ],
             options={
-                'verbose_name': 'بائع',
+                'verbose_name': 'مقوت',
                 'verbose_name_plural': 'المقاوته',
                 'ordering': ['name'],
             },
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')),
             ],
             options={
-                'verbose_name': 'مزارع',
+                'verbose_name': 'رعوي',
                 'verbose_name_plural': 'الرعويون',
                 'ordering': ['name'],
             },
@@ -73,13 +73,13 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=200, verbose_name='الاسم')),
                 ('discount_type', models.CharField(choices=[('FIXED_AMOUNT', 'مبلغ ثابت'), ('PERCENTAGE', 'نسبة'), ('TEMPORARY', 'مؤقت'), ('PERMANENT', 'دائم')], max_length=20, verbose_name='نوع الخصم')),
-                ('target_type', models.CharField(choices=[('FARMER', 'مزارع'), ('BUYER', 'بائع'), ('INVOICE', 'فاتورة'), ('ALL', 'جميع الفواتير')], max_length=20, verbose_name='نوع المستهدف')),
+                ('target_type', models.CharField(choices=[('FARMER', 'رعوي'), ('BUYER', 'مقوت'), ('INVOICE', 'فاتورة'), ('ALL', 'جميع الفواتير')], max_length=20, verbose_name='نوع المستهدف')),
                 ('value', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='القيمة')),
                 ('start_date', models.DateField(blank=True, null=True, verbose_name='تاريخ البداية')),
                 ('end_date', models.DateField(blank=True, null=True, verbose_name='تاريخ النهاية')),
                 ('is_active', models.BooleanField(default=True, verbose_name='نشط')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')),
-                ('target_buyer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.buyer', verbose_name='المقوت المستهدف')),
+                ('target_buyer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.buyer', verbose_name='الرعوي المستهدف')),
                 ('target_farmer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.farmer', verbose_name='الرعوي المستهدف')),
             ],
             options={

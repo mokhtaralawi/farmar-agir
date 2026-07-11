@@ -37,7 +37,7 @@ class Farmer(models.Model):
     updated_at = models.DateTimeField(_('تاريخ التحديث'), auto_now=True)
 
     class Meta:
-        verbose_name = _('مزارع')
+        verbose_name = _('رعوي')
         verbose_name_plural = _('الرعويون')
         ordering = ['name']
 
@@ -82,7 +82,7 @@ class Buyer(models.Model):
     updated_at = models.DateTimeField(_('تاريخ التحديث'), auto_now=True)
 
     class Meta:
-        verbose_name = _('بائع')
+        verbose_name = _('مقوت')
         verbose_name_plural = _('المقاوته')
         ordering = ['name']
 
@@ -108,8 +108,8 @@ class Discount(models.Model):
         ('PERMANENT', _('دائم')),
     ]
     TARGET_TYPES = [
-        ('FARMER', _('مزارع')),
-        ('BUYER', _('بائع')),
+        ('FARMER', _('رعوي')),
+        ('BUYER', _('مقوت')),
         ('INVOICE', _('فاتورة')),
         ('ALL', _('جميع الفواتير')),
     ]
@@ -121,7 +121,7 @@ class Discount(models.Model):
     target_farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, null=True, blank=True,
                                        verbose_name=_('الرعوي المستهدف'))
     target_buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE, null=True, blank=True,
-                                      verbose_name=_('المقوت المستهدف'))
+                                      verbose_name=_('الرعوي المستهدف'))
     start_date = models.DateField(_('تاريخ البداية'), null=True, blank=True)
     end_date = models.DateField(_('تاريخ النهاية'), null=True, blank=True)
     is_active = models.BooleanField(_('نشط'), default=True)

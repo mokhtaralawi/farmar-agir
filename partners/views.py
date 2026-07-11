@@ -52,6 +52,6 @@ def create_buyer(request):
             credit_limit=request.POST.get('credit_limit') or 0,
             notes=request.POST.get('notes', ''),
         )
-        messages.success(request, 'تم إنشاء المقوت بنجاح')
+        messages.success(request, 'تم إنشاء الرعوي بنجاح')
         return redirect('partners:buyers')
     return render(request, 'partners/create_buyer.html', {'generated_code': Buyer.generate_code()})

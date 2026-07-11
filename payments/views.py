@@ -168,7 +168,7 @@ def settlements_list(request):
 @login_required
 @transaction.atomic
 def create_settlement(request):
-    """إنشاء تسوية مع مزارع"""
+    """إنشاء تسوية مع رعوي"""
     if request.method == 'POST':
         farmer_id = request.POST.get('farmer')
         period_start = request.POST.get('period_start')

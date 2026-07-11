@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
             name='InventoryMovement',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('movement_type', models.CharField(choices=[('RECEIVED', 'استلام'), ('SOLD', 'بيع'), ('RETURN_IN', 'مرتجع إلى الرعوي'), ('RETURN_OUT', 'مرتجع من المقوت'), ('DAMAGED', 'تالف'), ('WASTED', 'هالك'), ('LOST', 'مفقود'), ('STOLEN', 'مسروق'), ('TRANSFER_IN', 'تحويل وارد'), ('TRANSFER_OUT', 'تحويل صادر')], max_length=20, verbose_name='نوع الحركة')),
+                ('movement_type', models.CharField(choices=[('RECEIVED', 'استلام'), ('SOLD', 'بيع'), ('RETURN_IN', 'مرتجع إلى الرعوي'), ('RETURN_OUT', 'مرتجع من الرعوي'), ('DAMAGED', 'تالف'), ('WASTED', 'هالك'), ('LOST', 'مفقود'), ('STOLEN', 'مسروق'), ('TRANSFER_IN', 'تحويل وارد'), ('TRANSFER_OUT', 'تحويل صادر')], max_length=20, verbose_name='نوع الحركة')),
                 ('quantity', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='الكمية')),
                 ('price', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='السعر')),
                 ('reference_type', models.CharField(blank=True, max_length=50, verbose_name='نوع المرجع')),

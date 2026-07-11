@@ -16,7 +16,7 @@ class SalesInvoice(models.Model):
     ]
 
     invoice_number = models.CharField(_('رقم الفاتورة'), max_length=50, unique=True)
-    buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('المقوت'))
+    buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('الرعوي'))
     warehouse = models.ForeignKey('core.Warehouse', on_delete=models.SET_NULL, null=True, blank=True,
                                    verbose_name=_('المخزن'))
     status = models.CharField(_('الحالة'), max_length=10, choices=STATUS_CHOICES, default='DRAFT')
@@ -85,7 +85,7 @@ class SalesReturn(models.Model):
     invoice_number = models.CharField(_('رقم الفاتورة'), max_length=50, unique=True)
     sales_invoice = models.ForeignKey(SalesInvoice, on_delete=models.CASCADE,
                                        verbose_name=_('فاتورة البيع الأصلية'))
-    buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('المقوت'))
+    buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('الرعوي'))
     status = models.CharField(_('الحالة'), max_length=10, choices=STATUS_CHOICES, default='DRAFT')
     date = models.DateField(_('التاريخ'))
     total_amount = models.DecimalField(_('الإجمالي'), max_digits=15, decimal_places=2, default=0)

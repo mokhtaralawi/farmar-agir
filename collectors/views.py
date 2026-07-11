@@ -59,7 +59,7 @@ def create_collection(request):
             return redirect('collectors:create')
 
         if amount > buyer.current_balance:
-            messages.error(request, f'المبلغ ({amount}) أكبر من رصيد المقوت ({buyer.current_balance})')
+            messages.error(request, f'المبلغ ({amount}) أكبر من رصيد الرعوي ({buyer.current_balance})')
             return redirect('collectors:create')
 
         last_receipt = CollectionReceipt.objects.order_by('-id').first()
@@ -120,7 +120,7 @@ def print_collection(request, pk):
     <div class="header"><h3>{settings.company_name}</h3><p>سند قبض</p></div>
     <div class="info">
     <p>رقم: {receipt.receipt_number}</p>
-    <p>المقوت: {receipt.buyer.name}</p>
+    <p>الرعوي: {receipt.buyer.name}</p>
     <p>المبلغ: {receipt.amount}</p>
     <p>الطريقة: {receipt.get_payment_method_display()}</p>
     <p>التاريخ: {receipt.date}</p>
@@ -133,7 +133,7 @@ def print_collection(request, pk):
 
 @login_required
 def buyer_statement(request, buyer_id):
-    """كشف حساب المقوت"""
+    """كشف حساب الرعوي"""
     buyer = get_object_or_404(Buyer, id=buyer_id)
     sales = SalesInvoice.objects.filter(buyer=buyer, status='APPROVED', is_deleted=False)
     receipts = CollectionReceipt.objects.filter(buyer=buyer, is_deleted=False)

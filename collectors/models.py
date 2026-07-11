@@ -16,7 +16,7 @@ class CollectionReceipt(models.Model):
     ]
 
     receipt_number = models.CharField(_('رقم السند'), max_length=50, unique=True)
-    buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('المقوت'))
+    buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('الرعوي'))
     payment_method = models.CharField(_('طريقة الدفع'), max_length=20, choices=PAYMENT_METHODS, default='CASH')
     amount = models.DecimalField(_('المبلغ'), max_digits=15, decimal_places=2)
     bank = models.ForeignKey('core.Bank', on_delete=models.SET_NULL, null=True, blank=True,

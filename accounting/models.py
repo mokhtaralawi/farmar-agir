@@ -64,7 +64,7 @@ class JournalEntryLine(models.Model):
     partner = models.ForeignKey('partners.Farmer', on_delete=models.SET_NULL, null=True, blank=True,
                                  verbose_name=_('الرعوي'))
     partner_type = models.CharField(_('نوع الشريك'), max_length=10, null=True, blank=True,
-                                     choices=[('FARMER', _('مزارع')), ('BUYER', _('بائع'))])
+                                     choices=[('FARMER', _('رعوي')), ('BUYER', _('مقوت'))])
     partner_obj_id = models.PositiveIntegerField(_('رقم الشريك'), null=True, blank=True)
     currency = models.ForeignKey('core.Currency', on_delete=models.SET_NULL, null=True, blank=True,
                                   verbose_name=_('العملة'))
