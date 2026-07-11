@@ -632,6 +632,14 @@
             </a>
         </div>
 
+        <div class="nav-section">
+            <div id="installSection" style="display:none;">
+                <a href="#" class="nav-item" id="installBtn" onclick="installApp(); return false;">
+                    <i class="bi bi-phone"></i> تثبيت التطبيق
+                </a>
+            </div>
+        </div>
+
         {% if request.user.is_superuser or request.user.is_staff %}
         <div class="nav-section">
             <div class="nav-section-title">الإعدادات</div>
@@ -675,6 +683,25 @@
                 console.log('SW registered', reg.scope);
             }).catch(function(err) {
                 console.log('SW registration failed', err);
+            });
+        }
+
+        // PWA Install
+        var deferredPrompt;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installSection').style.display = 'block';
+        });
+
+        function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function(choice) {
+                if (choice.outcome === 'accepted') {
+                    document.getElementById('installSection').style.display = 'none';
+                }
+                deferredPrompt = null;
             });
         }
     </script>

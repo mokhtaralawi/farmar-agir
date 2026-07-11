@@ -11,7 +11,7 @@
             <select name="account" class="form-control">
                 <option value="">الكل</option>
                 {% for acc in accounts %}
-                <option value="{{ acc.id }}" {% if account_id == acc.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ acc.id }}" {% if account_id == acc.id|stringformat:"d" %}selected{% endif %}>
                     {{ acc.code }} - {{ acc.name }}
                 </option>
                 {% endfor %}

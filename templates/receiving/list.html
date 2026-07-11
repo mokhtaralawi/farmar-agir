@@ -25,7 +25,7 @@
             <select name="farmer" class="form-control">
                 <option value="">الكل</option>
                 {% for farmer in farmers %}
-                <option value="{{ farmer.id }}" {% if filters.farmer == farmer.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ farmer.id }}" {% if filters.farmer == farmer.id|stringformat:"d" %}selected{% endif %}>
                     {{ farmer.name }}
                 </option>
                 {% endfor %}

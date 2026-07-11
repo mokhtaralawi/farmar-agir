@@ -11,7 +11,7 @@
             <select name="employee" class="form-control">
                 <option value="">الكل</option>
                 {% for emp in employees %}
-                <option value="{{ emp.id }}" {% if request.GET.employee==emp.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ emp.id }}" {% if request.GET.employee == emp.id|stringformat:"d" %}selected{% endif %}>
                     {{ emp.name }}
                 </option>
                 {% endfor %}

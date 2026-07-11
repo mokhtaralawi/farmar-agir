@@ -11,7 +11,7 @@
             <select name="warehouse" class="form-control">
                 <option value="">الكل</option>
                 {% for w in warehouses %}
-                <option value="{{ w.id }}" {% if warehouse_id==w.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ w.id }}" {% if warehouse_id == w.id|stringformat:"d" %}selected{% endif %}>
                     {{ w.name }}
                 </option>
                 {% endfor %}

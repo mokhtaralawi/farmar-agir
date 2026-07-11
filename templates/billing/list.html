@@ -24,8 +24,7 @@
             <select name="buyer" class="form-control">
                 <option value="">الكل</option>
                 {% for buyer in buyers %}
-                <option value="{{ buyer.id }}" {% if filters.buyer==buyer.id|stringformat:"s" %}selected{% endif %}>
-                    {{ buyer.name }}
+                <option value="{{ buyer.id }}" {% if filters.buyer == buyer.id|stringformat:"d" %}selected{% endif %}>{{ buyer.name }}
                 </option>
                 {% endfor %}
             </select>
