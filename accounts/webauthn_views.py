@@ -27,7 +27,7 @@ import cbor2
 
 from .models import User
 
-_signer = Signer('webauthn')
+_signer = Signer(key='webauthn')
 
 
 def _base64url_encode(data):
