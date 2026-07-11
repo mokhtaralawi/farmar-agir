@@ -245,8 +245,8 @@ LOGGING = {
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 # PWA Settings
-PWA_NAME = 'Agri Bridge - نظام الوساطة الزراعية'
-PWA_SHORT_NAME = 'AgriBridge'
+PWA_NAME = 'نظام المجابرة'
+PWA_SHORT_NAME = 'نظام المجابرة'
 PWA_DESCRIPTION = 'نظام إدارة سوق الخضروات والفواكه بالجملة'
 PWA_THEME_COLOR = '#1e40af'
 PWA_BACKGROUND_COLOR = '#ffffff'

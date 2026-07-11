@@ -13,9 +13,9 @@ from .models import SystemSettings
 def manifest_view(request):
     """PWA Manifest"""
     manifest = {
-        "name": "نظام البيع للمجابرة",
-        "short_name": "نظام البيع للقات",
-        "description": "نظام ERP لبيع القات بالجملة للمجابرة",
+        "name": "نظام المجابرة",
+        "short_name": "نظام المجابرة",
+        "description": "نظام إدارة سوق الخضروات والفواكه بالجملة",
         "start_url": "/",
         "display": "standalone",
         "background_color": "#F5F5F5",

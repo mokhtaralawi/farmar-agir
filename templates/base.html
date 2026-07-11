@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#2E7D32">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>{% block title %}نظام البيع للمجابرة{% endblock %}</title>
+    <title>{% block title %}نظام المجابرة{% endblock %}</title>
 
     <!-- PWA -->
     <link rel="manifest" href="{% url 'core:manifest' %}">
@@ -487,8 +487,7 @@
                 <i class="bi bi-list"></i>
             </button>
             <span class="logo">
-                <i class="bi bi-basket-fill"></i> نظام البيع للمجابرة
-            </span>
+                <i class="bi bi-basket-fill"></i> نظام المجابرة</span>
         </div>
         <div class="nav-links">
             <a href="{% url 'reports:dashboard' %}"><i class="bi bi-house-fill"></i></a>
@@ -638,6 +637,15 @@
                 setTimeout(() => el.remove(), 500);
             });
         }, 3000);
+
+        // PWA service worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/core/service-worker.js').then(function(reg) {
+                console.log('SW registered', reg.scope);
+            }).catch(function(err) {
+                console.log('SW registration failed', err);
+            });
+        }
     </script>
 </body>
 
