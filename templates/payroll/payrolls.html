@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}مسير الرواتب - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-calculator"></i> مسيرات الرواتب</h2>
+    <a href="{% url 'payroll:create_payroll' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> مسير جديد</a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>رقم المسير</th>
+            <th>من تاريخ</th>
+            <th>إلى تاريخ</th>
+            <th>إجمالي الراتب</th>
+            <th>إجمالي الخصومات</th>
+            <th>الصافي</th>
+            <th>الحالة</th>
+        </tr>
+        {% for payroll in payrolls %}
+        <tr>
+            <td><strong>{{ payroll.payroll_number }}</strong></td>
+            <td>{{ payroll.period_start }}</td>
+            <td>{{ payroll.period_end }}</td>
+            <td>{{ payroll.total_salary }}</td>
+            <td>{{ payroll.total_deductions }}</td>
+            <td><strong>{{ payroll.net_amount }}</strong></td>
+            <td>
+                {% if payroll.status == 'APPROVED' %}
+                <span class="badge badge-success">معتمد</span>
+                {% else %}
+                <span class="badge badge-warning">{{ payroll.get_status_display }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد مسيرات</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

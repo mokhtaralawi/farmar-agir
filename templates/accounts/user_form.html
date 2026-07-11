@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == 'edit' %}تعديل{% else %}إضافة{% endif %} مستخدم - جسر الزراعة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;">
+    <i class="bi bi-{% if mode == 'edit' %}pencil{% else %}person-plus{% endif %}"></i>
+    {% if mode == 'edit' %}تعديل{% else %}إضافة{% endif %} مستخدم
+</h2>
+
+<div class="card" style="max-width:600px;margin:auto;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>اسم المستخدم *</label>
+                <input type="text" name="username" class="form-control" required
+                       value="{{ u.username|default:'' }}"
+                       {% if mode == 'edit' %}readonly style="background:#f0f0f0;"{% endif %}
+                       placeholder="اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" name="full_name" class="form-control"
+                       value="{{ u.full_name|default:'' }}" placeholder="الاسم الكامل">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" class="form-control"
+                       value="{{ u.phone|default:'' }}" placeholder="05xxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور {% if mode == 'edit' %}(اترك فارغاً بدون تغيير){% endif %} *</label>
+                <input type="password" name="password" class="form-control"
+                       {% if mode == 'create' %}required{% endif %}
+                       placeholder="{% if mode == 'create' %}كلمة المرور{% else %}كلمة مرور جديدة{% endif %}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>الأدوار</label>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:5px;">
+                {% for role in roles %}
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:8px 12px;border:1px solid #ddd;border-radius:8px;{% if role.id in user_role_ids %}background:#e8f5e9;border-color:#4CAF50;{% endif %}">
+                    <input type="checkbox" name="roles" value="{{ role.id }}"
+                           {% if role.id in user_role_ids %}checked{% endif %}>
+                    {{ role.name }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if mode == 'edit' %}
+        <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" name="is_active" {% if u.is_active %}checked{% endif %}>
+                المستخدم نشط
+            </label>
+        </div>
+        {% endif %}
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> {% if mode == 'edit' %}حفظ التغييرات{% else %}إنشاء المستخدم{% endif %}
+            </button>
+            <a href="{% url 'accounts:users_list' %}" class="btn btn-light" style="padding:12px 30px;font-size:16px;">
+                <i class="bi bi-x-lg"></i> إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

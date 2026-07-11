@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}المخزون - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-graph-up"></i> حالة المخزون</h2>
+
+<div class="card">
+    <table class="data-table">
+        <tr><th>الصنف</th><th>المخزن</th><th>مستلم</th><th>مباع</th><th>متبقي</th><th>متاح</th><th>متوسط السعر</th><th>الحالة</th></tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.warehouse.name }}</td>
+            <td>{{ item.received_qty }}</td>
+            <td>{{ item.sold_qty }}</td>
+            <td>{{ item.remaining_qty }}</td>
+            <td>{{ item.available_qty }}</td>
+            <td>{{ item.avg_price }}</td>
+            <td>
+                {% if item.remaining_qty <= 0 %}
+                    <span class="badge badge-danger">نفذ</span>
+                {% elif item.remaining_qty <= item.min_stock %}
+                    <span class="badge badge-warning">منخفض</span>
+                {% else %}
+                    <span class="badge badge-success">متوفر</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty-state"><i class="bi bi-inbox"></i><p>لا توجد بيانات مخزون</p></td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}التحصيل - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-cash-stack"></i> سندات القبض</h2>
+    <a href="{% url 'collectors:create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> سند جديد
+    </a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>رقم السند</th>
+            <th>المقوت</th>
+            <th>المبلغ</th>
+            <th>الطريقة</th>
+            <th>التاريخ</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for receipt in receipts %}
+        <tr>
+            <td><strong>{{ receipt.receipt_number }}</strong></td>
+            <td>{{ receipt.buyer.name }}</td>
+            <td>{{ receipt.amount }}</td>
+            <td>{{ receipt.get_payment_method_display }}</td>
+            <td>{{ receipt.date }}</td>
+            <td>
+                <a href="{% url 'collectors:print' receipt.id %}" target="_blank" class="btn btn-sm btn-info">
+                    <i class="bi bi-printer"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد سندات</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

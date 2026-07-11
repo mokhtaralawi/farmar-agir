@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}تفاصيل فاتورة استلام - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-file-earmark-text"></i> تفاصيل فاتورة {{ invoice.invoice_number }}</h2>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">معلومات الفاتورة</span>
+        <a href="{% url 'receiving:print' invoice.id %}" target="_blank" class="btn btn-sm btn-info">
+            <i class="bi bi-printer"></i> طباعة
+        </a>
+    </div>
+    <table class="data-table">
+        <tr>
+            <td><strong>رقم الفاتورة</strong></td>
+            <td>{{ invoice.invoice_number }}</td>
+        </tr>
+        <tr>
+            <td><strong>الرعوي</strong></td>
+            <td>{{ invoice.farmer.name }}</td>
+        </tr>
+        <tr>
+            <td><strong>المخزن</strong></td>
+            <td>{{ invoice.warehouse.name }}</td>
+        </tr>
+        <tr>
+            <td><strong>التاريخ</strong></td>
+            <td>{{ invoice.date }}</td>
+        </tr>
+        <tr>
+            <td><strong>الإجمالي</strong></td>
+            <td><strong>{{ invoice.total_amount }}</strong></td>
+        </tr>
+        <tr>
+            <td><strong>الحالة</strong></td>
+            <td>{{ invoice.get_status_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>الملاحظات</strong></td>
+            <td>{{ invoice.notes|default:"-" }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if invoice.lines.exists %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">الأصناف</span>
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>الصنف</th>
+            <th>الوحدة</th>
+            <th>الكمية</th>
+            <th>سعر الوحدة</th>
+            <th>الإجمالي</th>
+        </tr>
+        {% for line in invoice.lines.all %}
+        <tr>
+            <td>{{ line.product.name }}</td>
+            <td>{{ line.unit.name }}</td>
+            <td>{{ line.quantity }}</td>
+            <td>{{ line.unit_price }}</td>
+            <td><strong>{{ line.total }}</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}موظف جديد - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-person-workspace"></i> إضافة موظف جديد</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الكود *</label>
+                <input type="text" name="code" class="form-control" required placeholder="مثال: EMP-001">
+            </div>
+            <div class="form-group">
+                <label>الاسم *</label>
+                <input type="text" name="name" class="form-control" required placeholder="اسم الموظف">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" class="form-control" placeholder="05xxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>الوظيفة</label>
+                <input type="text" name="position" class="form-control" placeholder="المسمى الوظيفي">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الراتب الأساسي *</label>
+                <input type="number" name="basic_salary" class="form-control" step="0.01" min="0" required
+                    placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>البدلات</label>
+                <input type="number" name="allowances" class="form-control" step="0.01" value="0" placeholder="0">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الخصومات</label>
+                <input type="number" name="deductions" class="form-control" step="0.01" value="0" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>تاريخ التعيين *</label>
+                <input type="date" name="hire_date" class="form-control" required>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ الموظف
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

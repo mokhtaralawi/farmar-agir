@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}تقرير المبيعات - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-bar-chart"></i> تقرير المبيعات</h2>
+
+<div class="card" style="margin-bottom:15px;">
+    <form method="get" class="form-row">
+        <div class="form-group">
+            <label>من تاريخ</label>
+            <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+        </div>
+        <div class="form-group">
+            <label>إلى تاريخ</label>
+            <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> عرض التقرير</button>
+        </div>
+    </form>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="icon orange"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="info">
+            <h3>{{ totals.count|default:0 }}</h3>
+            <p>عدد الفواتير</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon green"><i class="bi bi-cash-stack"></i></div>
+        <div class="info">
+            <h3>{{ totals.total|default:0 }}</h3>
+            <p>إجمالي المبيعات</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon blue"><i class="bi bi-tag"></i></div>
+        <div class="info">
+            <h3>{{ totals.discount|default:0 }}</h3>
+            <p>إجمالي الخصومات</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon red"><i class="bi bi-calculator"></i></div>
+        <div class="info">
+            <h3>{{ totals.net|default:0 }}</h3>
+            <p>صافي المبيعات</p>
+        </div>
+    </div>
+</div>
+
+{% if buyers %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">المبيعات حسب المقوت</span>
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>المقوت</th>
+            <th>عدد الفواتير</th>
+            <th>الإجمالي</th>
+            <th>الخصم</th>
+            <th>الصافي</th>
+        </tr>
+        {% for b in buyers %}
+        <tr>
+            <td>{{ b.buyer.name }}</td>
+            <td>{{ b.count }}</td>
+            <td>{{ b.total }}</td>
+            <td>{{ b.discount }}</td>
+            <td><strong>{{ b.net }}</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

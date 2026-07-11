@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}السلف - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-cash-coin"></i> سلف الموظفين</h2>
+    <a href="{% url 'payroll:create_advance' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> سلفة جديدة</a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>رقم السلفة</th>
+            <th>الموظف</th>
+            <th>المبلغ</th>
+            <th>المتبقي</th>
+            <th>التاريخ</th>
+        </tr>
+        {% for adv in advances %}
+        <tr>
+            <td><strong>{{ adv.advance_number }}</strong></td>
+            <td>{{ adv.employee.name }}</td>
+            <td>{{ adv.amount }}</td>
+            <td>{{ adv.remaining }}</td>
+            <td>{{ adv.date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد سلف</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

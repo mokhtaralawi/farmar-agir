@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}المقاوته - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-people"></i> المقاوته</h2>
+    <a href="{% url 'partners:create_buyer' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> بائع جديد</a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>الهاتف</th>
+            <th>المدينة</th>
+            <th>الرصيد</th>
+            <th>الحد الائتماني</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for buyer in buyers %}
+        <tr>
+            <td><strong>{{ buyer.code }}</strong></td>
+            <td>{{ buyer.name }}</td>
+            <td>{{ buyer.phone }}</td>
+            <td>{{ buyer.city|default:"-" }}</td>
+            <td>{{ buyer.current_balance }}</td>
+            <td>{{ buyer.credit_limit|default:"-" }}</td>
+            <td>
+                {% if buyer.status == 'ACTIVE' %}
+                <span class="badge badge-success">نشط</span>
+                {% else %}
+                <span class="badge badge-danger">{{ buyer.get_status_display }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'collectors:buyer_statement' buyer.id %}" class="btn btn-sm btn-info">
+                    <i class="bi bi-receipt"></i> كشف حساب
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا يوجد باعة</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

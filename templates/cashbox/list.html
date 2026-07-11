@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}الصناديق - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-bank2"></i> إدارة الصناديق</h2>
+    <div style="display:flex;gap:10px;">
+        <a href="{% url 'cashbox:cash_in' %}" class="btn btn-primary"><i class="bi bi-box-arrow-in-down"></i> إيداع</a>
+        <a href="{% url 'cashbox:cash_out' %}" class="btn btn-danger"><i class="bi bi-box-arrow-up"></i> صرف</a>
+        <a href="{% url 'cashbox:transfer' %}" class="btn btn-info"><i class="bi bi-arrow-left-right"></i> تحويل</a>
+    </div>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>الصندوق</th>
+            <th>الفرع</th>
+            <th>الرصيد الافتتاحي</th>
+            <th>الرصيد الحالي</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for box in boxes %}
+        <tr>
+            <td><strong>{{ box.name }}</strong></td>
+            <td>{{ box.branch.name|default:"-" }}</td>
+            <td>{{ box.opening_balance }}</td>
+            <td><strong>{{ box.current_balance }}</strong></td>
+            <td>
+                {% if box.status == 'OPEN' %}
+                <span class="badge badge-success">مفتوح</span>
+                {% else %}
+                <span class="badge badge-danger">مغلق</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'cashbox:transactions' box.id %}" class="btn btn-sm btn-light">
+                    <i class="bi bi-list"></i> الحركات
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد صناديق</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

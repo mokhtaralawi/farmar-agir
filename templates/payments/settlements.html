@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}التسويات - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-card-checklist"></i> تسويات الرعية</h2>
+    <a href="{% url 'payments:create_settlement' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> تسوية
+        جديدة</a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>رقم التسوية</th>
+            <th>الرعوي</th>
+            <th>الفترة</th>
+            <th>إجمالي الاستلام</th>
+            <th>العمولات</th>
+            <th>الخصومات</th>
+            <th>المصروفات</th>
+            <th>المسدد</th>
+            <th>صافي المستحق</th>
+            <th>الحالة</th>
+        </tr>
+        {% for s in settlements %}
+        <tr>
+            <td><strong>{{ s.settlement_number }}</strong></td>
+            <td>{{ s.farmer.name }}</td>
+            <td>{{ s.period_start }} إلى {{ s.period_end }}</td>
+            <td>{{ s.total_sales }}</td>
+            <td>{{ s.total_commissions }}</td>
+            <td>{{ s.total_discounts }}</td>
+            <td>{{ s.total_expenses }}</td>
+            <td>{{ s.total_paid }}</td>
+            <td><strong>{{ s.net_payable }}</strong></td>
+            <td>
+                {% if s.status == 'APPROVED' %}
+                <span class="badge badge-success">معتمد</span>
+                {% else %}
+                <span class="badge badge-warning">{{ s.get_status_display }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="10" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد تسويات</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

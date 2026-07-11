@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}لوحة التحكم - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-speedometer2"></i> لوحة التحكم</h2>
+
+<!-- Today Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="icon green"><i class="bi bi-box-arrow-in-right"></i></div>
+        <div class="info">
+            <h3>{{ today_receiving.count|default:0 }}</h3>
+            <p>فواتير استلام اليوم</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon orange"><i class="bi bi-cart"></i></div>
+        <div class="info">
+            <h3>{{ today_sales.count|default:0 }}</h3>
+            <p>فواتير بيع اليوم</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon blue"><i class="bi bi-cash-stack"></i></div>
+        <div class="info">
+            <h3>{{ today_collections.total|default:0 }}</h3>
+            <p>تحصيل اليوم</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon red"><i class="bi bi-cash-coin"></i></div>
+        <div class="info">
+            <h3>{{ today_payments.total|default:0 }}</h3>
+            <p>صرف اليوم</p>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="icon green"><i class="bi bi-person-badge"></i></div>
+        <div class="info">
+            <h3>{{ farmers_count }}</h3>
+            <p>الرعويون النشطون</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon orange"><i class="bi bi-people"></i></div>
+        <div class="info">
+            <h3>{{ buyers_count }}</h3>
+            <p>المقاوته النشطون</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon blue"><i class="bi bi-bank2"></i></div>
+        <div class="info">
+            <h3>{{ total_cash }}</h3>
+            <p>إجمالي الصناديق</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon red"><i class="bi bi-graph-up"></i></div>
+        <div class="info">
+            <h3>{{ low_stock|length }}</h3>
+            <p>أصناف منخفضة المخزون</p>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Performance -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="bi bi-bar-chart"></i> أداء الشهر</span>
+    </div>
+    <table class="data-table">
+        <tr>
+            <th></th>
+            <th>الاستلامات</th>
+            <th>المبيعات</th>
+        </tr>
+        <tr>
+            <td><strong>العدد</strong></td>
+            <td>{{ month_receiving.count|default:0 }}</td>
+            <td>{{ month_sales.count|default:0 }}</td>
+        </tr>
+        <tr>
+            <td><strong>الإجمالي</strong></td>
+            <td>{{ month_receiving.total|default:0 }}</td>
+            <td>{{ month_sales.total|default:0 }}</td>
+        </tr>
+    </table>
+</div>
+
+<!-- Cashboxes -->
+{% if open_cashboxes %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="bi bi-bank2"></i> الصناديق المفتوحة</span>
+        <a href="{% url 'cashbox:list' %}" class="btn btn-sm btn-info">عرض الكل</a>
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>الصندوق</th>
+            <th>الفرع</th>
+            <th>الرصيد</th>
+        </tr>
+        {% for cb in open_cashboxes %}
+        <tr>
+            <td>{{ cb.name }}</td>
+            <td>{{ cb.branch.name|default:"-" }}</td>
+            <td>{{ cb.current_balance }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+<!-- Low Stock Alert -->
+{% if low_stock %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="bi bi-exclamation-triangle"></i> تنبيه المخزون المنخفض</span>
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>الصنف</th>
+            <th>المخزن</th>
+            <th>المتبقي</th>
+            <th>الحد الأدنى</th>
+        </tr>
+        {% for item in low_stock %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.warehouse.name }}</td>
+            <td><span class="badge badge-danger">{{ item.remaining_qty }}</span></td>
+            <td>{{ item.min_stock }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

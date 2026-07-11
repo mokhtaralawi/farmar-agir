@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}فواتير الاستلام - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-file-earmark-text"></i> فواتير الاستلام</h2>
+    <a href="{% url 'receiving:create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> فاتورة جديدة
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:15px;">
+    <form method="get" class="form-row">
+        <div class="form-group">
+            <label>من تاريخ</label>
+            <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+        </div>
+        <div class="form-group">
+            <label>إلى تاريخ</label>
+            <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+        </div>
+        <div class="form-group">
+            <label>الرعوي</label>
+            <select name="farmer" class="form-control">
+                <option value="">الكل</option>
+                {% for farmer in farmers %}
+                <option value="{{ farmer.id }}" {% if filters.farmer == farmer.id|stringformat:"s" %}selected{% endif %}>
+                    {{ farmer.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>الحالة</label>
+            <select name="status" class="form-control">
+                <option value="">الكل</option>
+                <option value="DRAFT" {% if filters.status == 'DRAFT' %}selected{% endif %}>مسودة</option>
+                <option value="PENDING" {% if filters.status == 'PENDING' %}selected{% endif %}>بانتظار الاعتماد</option>
+                <option value="APPROVED" {% if filters.status == 'APPROVED' %}selected{% endif %}>معتمد</option>
+            </select>
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> بحث
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>الرعوي</th>
+            <th>التاريخ</th>
+            <th>الإجمالي</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for invoice in invoices %}
+        <tr>
+            <td><strong>{{ invoice.invoice_number }}</strong></td>
+            <td>{{ invoice.farmer.name }}</td>
+            <td>{{ invoice.date }}</td>
+            <td>{{ invoice.total_amount }}</td>
+            <td>
+                {% if invoice.status == 'APPROVED' %}
+                <span class="badge badge-success">معتمد</span>
+                {% elif invoice.status == 'PENDING' %}
+                <span class="badge badge-warning">بانتظار</span>
+                {% elif invoice.status == 'DRAFT' %}
+                <span class="badge badge-info">مسودة</span>
+                {% elif invoice.status == 'CANCELLED' %}
+                <span class="badge badge-danger">ملغي</span>
+                {% endif %}
+            </td>
+            <td style="display:flex;gap:5px;">
+                <a href="{% url 'receiving:print' invoice.id %}" target="_blank" class="btn btn-sm btn-info">
+                    <i class="bi bi-printer"></i>
+                </a>
+                <a href="{% url 'receiving:detail' invoice.id %}" class="btn btn-sm btn-light">
+                    <i class="bi bi-eye"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>لا توجد فواتير استلام</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

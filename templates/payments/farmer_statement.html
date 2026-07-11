@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}كشف حساب {{ farmer.name }} - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-receipt"></i> كشف حساب {{ farmer.name }}</h2>
+
+<div class="card" style="margin-bottom:15px;">
+    <form method="get" class="form-row">
+        <div class="form-group">
+            <label>من تاريخ</label>
+            <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+        </div>
+        <div class="form-group">
+            <label>إلى تاريخ</label>
+            <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> بحث</button>
+        </div>
+    </form>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="icon green"><i class="bi bi-box-arrow-in-right"></i></div>
+        <div class="info">
+            <h3>{{ receiving.count }}</h3>
+            <p>فواتير استلام</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon red"><i class="bi bi-cash-coin"></i></div>
+        <div class="info">
+            <h3>{{ payments.count }}</h3>
+            <p>سندات صرف</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon blue"><i class="bi bi-calculator"></i></div>
+        <div class="info">
+            <h3>{{ farmer.current_balance }}</h3>
+            <p>الرصيد الحالي</p>
+        </div>
+    </div>
+</div>
+
+{% if receiving %}
+<div class="card">
+    <div class="card-header"><span class="card-title">فواتير الاستلام</span></div>
+    <table class="data-table">
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>التاريخ</th>
+            <th>الإجمالي</th>
+        </tr>
+        {% for inv in receiving %}
+        <tr>
+            <td>{{ inv.invoice_number }}</td>
+            <td>{{ inv.date }}</td>
+            <td>{{ inv.total_amount }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if payments %}
+<div class="card">
+    <div class="card-header"><span class="card-title">سندات الصرف</span></div>
+    <table class="data-table">
+        <tr>
+            <th>رقم السند</th>
+            <th>التاريخ</th>
+            <th>المبلغ</th>
+        </tr>
+        {% for pay in payments %}
+        <tr>
+            <td>{{ pay.voucher_number }}</td>
+            <td>{{ pay.date }}</td>
+            <td>{{ pay.amount }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}صنف جديد - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-box-seam"></i> إضافة صنف جديد</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الكود</label>
+                <input type="text" class="form-control" value="{{ generated_code }}" readonly
+                    style="background:#f0f0f0;">
+            </div>
+            <div class="form-group">
+                <label>الاسم *</label>
+                <input type="text" name="name" class="form-control" required placeholder="اسم الصنف">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الفئة</label>
+                <select name="category" class="form-control">
+                    <option value="">بدون فئة</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الوحدة</label>
+                <select name="unit" class="form-control">
+                    <option value="">اختر الوحدة</option>
+                    {% for unit in units %}
+                    <option value="{{ unit.id }}">{{ unit.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ الصنف
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

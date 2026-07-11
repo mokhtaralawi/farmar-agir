@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}صرف مستحقات - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-cash-coin"></i> سندات الصرف</h2>
+    <a href="{% url 'payments:create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> سند جديد
+    </a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>رقم السند</th>
+            <th>الرعوي</th>
+            <th>المبلغ</th>
+            <th>الطريقة</th>
+            <th>التاريخ</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for voucher in vouchers %}
+        <tr>
+            <td><strong>{{ voucher.voucher_number }}</strong></td>
+            <td>{{ voucher.farmer.name }}</td>
+            <td>{{ voucher.amount }}</td>
+            <td>{{ voucher.get_payment_method_display }}</td>
+            <td>{{ voucher.date }}</td>
+            <td>
+                <a href="{% url 'payments:print' voucher.id %}" target="_blank" class="btn btn-sm btn-info">
+                    <i class="bi bi-printer"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد سندات صرف</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

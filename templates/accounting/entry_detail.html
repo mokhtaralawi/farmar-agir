@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}تفاصيل القيد - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-journal-text"></i> تفاصيل قيد {{ entry.entry_number }}</h2>
+
+<div class="card">
+    <table class="data-table">
+        <tr><td><strong>رقم القيد</strong></td><td>{{ entry.entry_number }}</td></tr>
+        <tr><td><strong>التاريخ</strong></td><td>{{ entry.date }}</td></tr>
+        <tr><td><strong>الوصف</strong></td><td>{{ entry.description }}</td></tr>
+        <tr><td><strong>الحالة</strong></td><td>{{ entry.get_status_display }}</td></tr>
+        <tr><td><strong>إنشاء بواسطة</strong></td><td>{{ entry.created_by }}</td></tr>
+        {% if entry.approved_by %}
+        <tr><td><strong>اعتمد بواسطة</strong></td><td>{{ entry.approved_by }} ({{ entry.approved_at|date:"Y-m-d H:i" }})</td></tr>
+        {% endif %}
+        <tr><td><strong>إجمالي مدين</strong></td><td>{{ entry.total_debit }}</td></tr>
+        <tr><td><strong>إجمالي دائن</strong></td><td>{{ entry.total_credit }}</td></tr>
+    </table>
+</div>
+
+{% if entry.lines.exists %}
+<div class="card">
+    <div class="card-header"><span class="card-title">سطور القيد</span></div>
+    <table class="data-table">
+        <tr><th>الحساب</th><th>الوصف</th><th>مدين</th><th>دائن</th></tr>
+        {% for line in entry.lines.all %}
+        <tr>
+            <td>{{ line.account.name }}</td>
+            <td>{{ line.description|default:"-" }}</td>
+            <td>{{ line.debit }}</td>
+            <td>{{ line.credit }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

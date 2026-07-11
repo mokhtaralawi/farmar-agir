@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}حركات {{ cashbox.name }} - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-list"></i> حركات {{ cashbox.name }}</h2>
+
+<div class="card">
+    <form method="get" class="form-row" style="margin-bottom:15px;">
+        <div class="form-group">
+            <label>من تاريخ</label>
+            <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+        </div>
+        <div class="form-group">
+            <label>إلى تاريخ</label>
+            <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> بحث</button>
+        </div>
+    </form>
+
+    <table class="data-table">
+        <tr>
+            <th>التاريخ</th>
+            <th>النوع</th>
+            <th>المبلغ</th>
+            <th>الوصف</th>
+            <th>الرصيد بعد</th>
+            <th>المرجع</th>
+        </tr>
+        {% for tx in transactions %}
+        <tr>
+            <td>{{ tx.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                {% if tx.transaction_type == 'CASH_IN' %}
+                <span class="badge badge-success">إيداع</span>
+                {% elif tx.transaction_type == 'CASH_OUT' %}
+                <span class="badge badge-danger">صرف</span>
+                {% else %}
+                <span class="badge badge-info">{{ tx.get_transaction_type_display }}</span>
+                {% endif %}
+            </td>
+            <td>{{ tx.amount }}</td>
+            <td>{{ tx.description|truncatewords:10 }}</td>
+            <td>{{ tx.balance_after }}</td>
+            <td>{{ tx.reference_number|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد حركات</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

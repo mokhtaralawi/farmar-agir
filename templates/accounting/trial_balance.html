@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}ميزان المراجعة - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-balancescale"></i> ميزان المراجعة</h2>
+
+<div class="card" style="margin-bottom:15px;">
+    <form method="get" class="form-row">
+        <div class="form-group">
+            <label>من تاريخ</label>
+            <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+        </div>
+        <div class="form-group">
+            <label>إلى تاريخ</label>
+            <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> عرض</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr><th>رقم الحساب</th><th>اسم الحساب</th><th>مدين</th><th>دائن</th><th>الرصيد</th><th>النوع</th></tr>
+        {% for b in balances %}
+        <tr>
+            <td>{{ b.account.code }}</td>
+            <td>{{ b.account.name }}</td>
+            <td>{{ b.debit }}</td>
+            <td>{{ b.credit }}</td>
+            <td><strong>{{ b.balance }}</strong></td>
+            <td>{{ b.balance_type }}</td>
+        </tr>
+        {% endfor %}
+        <tr style="background:#E8F5E9;font-weight:700;">
+            <td colspan="2">الإجمالي</td>
+            <td>{{ total_debit }}</td>
+            <td>{{ total_credit }}</td>
+            <td colspan="2">{% if total_debit == total_credit %}<span style="color:green;">متوازن</span>{% else %}<span style="color:red;">غير متوازن</span>{% endif %}</td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}

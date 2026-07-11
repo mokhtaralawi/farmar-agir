@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}شجرة الحسابات - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-diagram-3"></i> شجرة الحسابات</h2>
+
+<div class="card">
+    <ul style="list-style:none;padding:0;margin:0;">
+    {% for item in tree %}
+        <li style="padding:5px 0;padding-right:{{ item.level|multiply:30 }}px;border-bottom:1px solid #E0E0E0;">
+            <span style="font-size:14px;">
+                {% if item.account.account_type == 'ASSET' %}🟢
+                {% elif item.account.account_type == 'LIABILITY' %}🔴
+                {% elif item.account.account_type == 'EQUITY' %}🔵
+                {% elif item.account.account_type == 'REVENUE' %}🟡
+                {% elif item.account.account_type == 'EXPENSE' %}🟠
+                {% else %}⚪{% endif %}
+                <strong>{{ item.account.code }}</strong> - {{ item.account.name }}
+                <span style="color:#757575;font-size:11px;margin-right:10px;">{{ item.account.get_account_type_display }}</span>
+            </span>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

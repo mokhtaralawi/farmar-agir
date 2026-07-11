@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}الموظفون - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-person-workspace"></i> الموظفون</h2>
+    <a href="{% url 'payroll:create_employee' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> موظف جديد</a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>الوظيفة</th>
+            <th>الراتب الأساسي</th>
+            <th>البدلات</th>
+            <th>الخصومات</th>
+            <th>الحالة</th>
+        </tr>
+        {% for emp in employees %}
+        <tr>
+            <td><strong>{{ emp.code }}</strong></td>
+            <td>{{ emp.name }}</td>
+            <td>{{ emp.position|default:"-" }}</td>
+            <td>{{ emp.basic_salary }}</td>
+            <td>{{ emp.allowances }}</td>
+            <td>{{ emp.deductions }}</td>
+            <td>
+                {% if emp.status == 'ACTIVE' %}
+                <span class="badge badge-success">نشط</span>
+                {% else %}
+                <span class="badge badge-danger">{{ emp.get_status_display }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا يوجد موظفون</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

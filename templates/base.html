@@ -1,0 +1,644 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}نظام البيع للمجابرة{% endblock %}</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="{% url 'core:manifest' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-dark: #1B5E20;
+            --primary-light: #4CAF50;
+            --secondary: #FF6F00;
+            --secondary-light: #FFA000;
+            --danger: #C62828;
+            --danger-light: #EF5350;
+            --info: #1565C0;
+            --info-light: #42A5F5;
+            --success: #2E7D32;
+            --warning: #E65100;
+            --dark: #212121;
+            --light: #F5F5F5;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --gray-light: #E0E0E0;
+            --border: #BDBDBD;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+            --radius: 8px;
+            --radius-sm: 4px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: var(--primary);
+            color: var(--white);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .top-nav .logo {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .top-nav .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .top-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 52px;
+            right: 0;
+            width: 250px;
+            height: calc(100vh - 52px);
+            background: var(--white);
+            overflow-y: auto;
+            z-index: 900;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .nav-section {
+            padding: 15px 0;
+        }
+
+        .sidebar .nav-section-title {
+            padding: 5px 20px;
+            font-size: 11px;
+            color: var(--gray);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: var(--dark);
+            text-decoration: none;
+            gap: 12px;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar .nav-item:hover,
+        .sidebar .nav-item.active {
+            background: #E8F5E9;
+            color: var(--primary);
+        }
+
+        .sidebar .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-right: 250px;
+            padding: 20px;
+            min-height: calc(100vh - 52px);
+            transition: margin 0.3s ease;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Dashboard Cards */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-card .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-card .icon.green {
+            background: #E8F5E9;
+            color: var(--primary);
+        }
+
+        .stat-card .icon.orange {
+            background: #FFF3E0;
+            color: var(--secondary);
+        }
+
+        .stat-card .icon.blue {
+            background: #E3F2FD;
+            color: var(--info);
+        }
+
+        .stat-card .icon.red {
+            background: #FFEBEE;
+            color: var(--danger);
+        }
+
+        .stat-card .info h3 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-card .info p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: var(--light);
+            padding: 10px;
+            text-align: right;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .data-table tr:hover {
+            background: #F9F9F9;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .btn-light {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        select.form-control {
+            appearance: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            color: var(--primary-dark);
+        }
+
+        .alert-error {
+            background: #FFEBEE;
+            color: var(--danger);
+        }
+
+        .alert-warning {
+            background: #FFF3E0;
+            color: var(--warning);
+        }
+
+        .alert-info {
+            background: #E3F2FD;
+            color: var(--info);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #E8F5E9;
+            color: var(--primary);
+        }
+
+        .badge-danger {
+            background: #FFEBEE;
+            color: var(--danger);
+        }
+
+        .badge-warning {
+            background: #FFF3E0;
+            color: var(--warning);
+        }
+
+        .badge-info {
+            background: #E3F2FD;
+            color: var(--info);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 280px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block !important;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 5px;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Print */
+        @media print {
+
+            .top-nav,
+            .sidebar,
+            .no-print {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0;
+                padding: 10px;
+            }
+
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div style="display:flex;align-items:center;gap:15px;">
+            <button class="mobile-menu-btn btn btn-light" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="logo">
+                <i class="bi bi-basket-fill"></i> نظام البيع للمجابرة
+            </span>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'reports:dashboard' %}"><i class="bi bi-house-fill"></i></a>
+            <a href="{% url 'accounts:profile' %}" title="الملف الشخصي"><i class="bi bi-gear-fill"></i></a>
+            <a href="{% url 'accounts:logout' %}" title="تسجيل خروج"><i class="bi bi-box-arrow-right"></i></a>
+            <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="nav-section">
+            <div class="nav-section-title">الرئيسية</div>
+            <a href="{% url 'reports:dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> لوحة التحكم
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">الشركاء</div>
+            <a href="{% url 'partners:farmers' %}" class="nav-item">
+                <i class="bi bi-person-badge"></i> الرعويون
+            </a>
+            <a href="{% url 'partners:buyers' %}" class="nav-item">
+                <i class="bi bi-people"></i> المقاوته
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">المنتجات</div>
+            <a href="{% url 'products:products' %}" class="nav-item">
+                <i class="bi bi-box-seam"></i> الأصناف
+            </a>
+            <a href="{% url 'inventory:stock' %}" class="nav-item">
+                <i class="bi bi-graph-up"></i> المخزون
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">العمليات</div>
+            <a href="{% url 'receiving:create' %}" class="nav-item">
+                <i class="bi bi-box-arrow-in-right"></i> استلام بضاعة
+            </a>
+            <a href="{% url 'receiving:list' %}" class="nav-item">
+                <i class="bi bi-file-earmark-text"></i> فواتير الاستلام
+            </a>
+            <a href="{% url 'billing:create' %}" class="nav-item">
+                <i class="bi bi-cart"></i> بيع بضاعة
+            </a>
+            <a href="{% url 'billing:list' %}" class="nav-item">
+                <i class="bi bi-file-earmark-text"></i> فواتير البيع
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">المالية</div>
+            <a href="{% url 'collectors:create' %}" class="nav-item">
+                <i class="bi bi-cash-stack"></i> تحصيل
+            </a>
+            <a href="{% url 'payments:create' %}" class="nav-item">
+                <i class="bi bi-cash-coin"></i> صرف مستحقات
+            </a>
+            <a href="{% url 'cashbox:list' %}" class="nav-item">
+                <i class="bi bi-bank2"></i> الصناديق
+            </a>
+            <a href="{% url 'expenses:list' %}" class="nav-item">
+                <i class="bi bi-receipt"></i> المصروفات
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">المحاسبة</div>
+            <a href="{% url 'accounting:entries' %}" class="nav-item">
+                <i class="bi bi-journal-text"></i> القيود اليومية
+            </a>
+            <a href="{% url 'accounting:ledger' %}" class="nav-item">
+                <i class="bi bi-book"></i> دفتر الأستاذ
+            </a>
+            <a href="{% url 'accounting:trial_balance' %}" class="nav-item">
+                <i class="bi bi-balancescale"></i> ميزان المراجعة
+            </a>
+            <a href="{% url 'accounting:chart' %}" class="nav-item">
+                <i class="bi bi-diagram-3"></i> شجرة الحسابات
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">التقارير</div>
+            <a href="{% url 'reports:sales' %}" class="nav-item">
+                <i class="bi bi-bar-chart"></i> تقرير المبيعات
+            </a>
+            <a href="{% url 'reports:receiving' %}" class="nav-item">
+                <i class="bi bi-bar-chart"></i> تقرير الاستلامات
+            </a>
+            <a href="{% url 'reports:inventory' %}" class="nav-item">
+                <i class="bi bi-bar-chart"></i> تقرير المخزون
+            </a>
+            <a href="{% url 'reports:financial' %}" class="nav-item">
+                <i class="bi bi-bar-chart"></i> التقرير المالي
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">الموظفون</div>
+            <a href="{% url 'payroll:employees' %}" class="nav-item">
+                <i class="bi bi-person-workspace"></i> الموظفين
+            </a>
+            <a href="{% url 'payroll:payrolls' %}" class="nav-item">
+                <i class="bi bi-calculator"></i> مسير الرواتب
+            </a>
+        </div>
+
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <div class="nav-section">
+            <div class="nav-section-title">الإعدادات</div>
+            <a href="{% url 'accounts:users_list' %}" class="nav-item">
+                <i class="bi bi-people-fill"></i> المستخدمين
+            </a>
+        </div>
+        {% endif %}
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Auto dismiss alerts
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(function (el) {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 3000);
+    </script>
+</body>
+
+</html>

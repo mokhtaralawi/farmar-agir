@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}تقرير المخزون - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-bar-chart"></i> تقرير المخزون</h2>
+
+<div class="card" style="margin-bottom:15px;">
+    <form method="get" class="form-row">
+        <div class="form-group">
+            <label>المخزن</label>
+            <select name="warehouse" class="form-control">
+                <option value="">الكل</option>
+                {% for w in warehouses %}
+                <option value="{{ w.id }}" {% if warehouse_id==w.id|stringformat:"s" %}selected{% endif %}>
+                    {{ w.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> عرض التقرير</button>
+        </div>
+    </form>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="icon green"><i class="bi bi-box-seam"></i></div>
+        <div class="info">
+            <h3>{{ items.count }}</h3>
+            <p>أصناف في المخزون</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon orange"><i class="bi bi-cash-stack"></i></div>
+        <div class="info">
+            <h3>{{ totals.total_value|default:0 }}</h3>
+            <p>القيمة الإجمالية</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>الصنف</th>
+            <th>المخزن</th>
+            <th>مستلم</th>
+            <th>مباع</th>
+            <th>متبقي</th>
+            <th>متوسط السعر</th>
+            <th>القيمة</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.warehouse.name }}</td>
+            <td>{{ item.received_qty }}</td>
+            <td>{{ item.sold_qty }}</td>
+            <td>{{ item.remaining_qty }}</td>
+            <td>{{ item.avg_price }}</td>
+            <td><strong>{{ item.remaining_qty|multiply:item.avg_price|default:0 }}</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

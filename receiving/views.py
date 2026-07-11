@@ -1,0 +1,204 @@
+"""
+Receiving Views - استلام المنتجات من الرعية
+"""
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
+from django.http import HttpResponse
+from django.utils import timezone
+from decimal import Decimal
+from .models import ReceivingInvoice, ReceivingItem, ReturnInvoice, ReturnItem
+from partners.models import Farmer
+from core.models import Warehouse, SystemSettings
+from cashbox.models import CashBox
+from inventory.services import InventoryService
+from accounting.services import AccountingService
+from cashbox.services import CashBoxService
+from products.models import Product, Unit
+
+
+@login_required
+def receiving_list(request):
+    """قائمة فواتير الاستلام"""
+    invoices = ReceivingInvoice.objects.filter(is_deleted=False).select_related('farmer', 'created_by')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    farmer_id = request.GET.get('farmer')
+    status = request.GET.get('status')
+    if date_from:
+        invoices = invoices.filter(date__gte=date_from)
+    if date_to:
+        invoices = invoices.filter(date__lte=date_to)
+    if farmer_id:
+        invoices = invoices.filter(farmer_id=farmer_id)
+    if status:
+        invoices = invoices.filter(status=status)
+    invoices = invoices.order_by('-created_at')
+    return render(request, 'receiving/list.html', {
+        'invoices': invoices,
+        'farmers': Farmer.objects.filter(status='ACTIVE'),
+        'filters': {'date_from': date_from, 'date_to': date_to, 'farmer': farmer_id, 'status': status}
+    })
+
+
+@login_required
+@transaction.atomic
+def create_receiving(request):
+    """إنشاء فاتورة استلام"""
+    if request.method == 'POST':
+        farmer_id = request.POST.get('farmer')
+        warehouse_id = request.POST.get('warehouse')
+        date = request.POST.get('date')
+        notes = request.POST.get('notes', '')
+        items = request.POST.getlist('items[]')
+        try:
+            farmer = Farmer.objects.get(id=farmer_id)
+            warehouse = Warehouse.objects.get(id=warehouse_id)
+        except:
+            messages.error(request, 'بيانات غير صحيحة')
+            return redirect('receiving:create')
+
+        last_invoice = ReceivingInvoice.objects.order_by('-id').first()
+        num = (int(last_invoice.invoice_number.split('-')[-1]) + 1) if last_invoice else 1
+        invoice_number = f"RCV-{timezone.now().strftime('%Y')}-{num:06d}"
+
+        invoice = ReceivingInvoice.objects.create(
+            invoice_number=invoice_number, farmer=farmer, warehouse=warehouse,
+            date=date, notes=notes, status='APPROVED', created_by=request.user,
+            approved_by=request.user, approved_at=timezone.now(),
+        )
+
+        total = Decimal('0')
+        for item_data in items:
+            parts = item_data.split('|')
+            product = Product.objects.get(id=parts[0])
+            unit = Unit.objects.get(id=parts[1])
+            quantity = Decimal(parts[2])
+            price = Decimal(parts[3])
+            item_total = quantity * price
+            ReceivingItem.objects.create(
+                invoice=invoice, product=product, unit=unit,
+                quantity=quantity, unit_price=price, total=item_total,
+            )
+            total += item_total
+
+        invoice.total_amount = total
+        invoice.save()
+
+        # Update farmer balance
+        farmer.current_balance += total
+        farmer.total_receivables += total
+        farmer.save()
+
+        # Update inventory
+        for item in invoice.items.all():
+            InventoryService.receive_product(
+                product=item.product, warehouse=warehouse,
+                quantity=item.quantity, price=item.unit_price,
+                user=request.user, reference_type='RECEIVING', reference_id=invoice.id,
+            )
+
+        # Create accounting entry
+        try:
+            AccountingService.create_receiving_entry(invoice, request.user)
+        except:
+            pass
+
+        messages.success(request, f'تم إنشاء فاتورة استلام {invoice_number} بنجاح')
+        return redirect('receiving:print', invoice.id)
+
+    return render(request, 'receiving/create.html', {
+        'farmers': Farmer.objects.filter(status='ACTIVE'),
+        'warehouses': Warehouse.objects.filter(is_active=True),
+        'products': Product.objects.filter(is_active=True),
+        'units': Unit.objects.filter(is_active=True),
+    })
+
+
+@login_required
+def receiving_detail(request, pk):
+    """تفاصيل فاتورة الاستلام"""
+    invoice = get_object_or_404(ReceivingInvoice, id=pk, is_deleted=False)
+    return render(request, 'receiving/detail.html', {
+        'invoice': invoice,
+    })
+
+
+@login_required
+def print_receiving(request, pk):
+    """طباعة فاتورة الاستلام"""
+    invoice = get_object_or_404(ReceivingInvoice, id=pk, is_deleted=False)
+    settings = SystemSettings.get_settings()
+    html = f"""<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8">
+    <style>@media print {{ body {{ width: 58mm; font-size: 10px; }} }}
+    body {{ font-family: sans-serif; margin: 0; padding: 5px; }}
+    .header {{ text-align: center; border-bottom: 1px dashed #000; padding-bottom: 5px; }}
+    table {{ width: 100%; border-collapse: collapse; font-size: 9px; }}
+    th, td {{ border: 1px solid #ccc; padding: 2px; text-align: center; }}
+    .total {{ border-top: 1px dashed #000; padding-top: 5px; font-weight: bold; text-align: center; }}
+    </style></head><body>
+    <div class="header"><h3>{settings.company_name}</h3><p>فاتورة استلام</p></div>
+    <p style="text-align:center;font-size:9px;">رقم: {invoice.invoice_number}</p>
+    <p style="text-align:center;font-size:9px;">الرعوي: {invoice.farmer.name}</p>
+    <p style="text-align:center;font-size:9px;">التاريخ: {invoice.date}</p>
+    <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead>
+    <tbody>{''.join(f'<tr><td>{i.product.name}</td><td>{i.quantity}</td><td>{i.unit_price}</td><td>{i.total}</td></tr>' for i in invoice.items.all())}</tbody></table>
+    <div class="total"><p>الإجمالي: {invoice.total_amount}</p></div>
+    <p style="text-align:center;font-size:8px;">شكراً لكم</p>
+    </body></html>"""
+    return HttpResponse(html, content_type='text/html')
+
+
+@login_required
+@transaction.atomic
+def create_return(request):
+    """مرتجع استلام"""
+    if request.method == 'POST':
+        receiving_id = request.POST.get('receiving_invoice')
+        farmer_id = request.POST.get('farmer')
+        items = request.POST.getlist('items[]')
+        try:
+            original_invoice = ReceivingInvoice.objects.get(id=receiving_id)
+            farmer = Farmer.objects.get(id=farmer_id)
+        except:
+            messages.error(request, 'بيانات غير صحيحة')
+            return redirect('receiving:return')
+
+        last_return = ReturnInvoice.objects.order_by('-id').first()
+        num = (int(last_return.invoice_number.split('-')[-1]) + 1) if last_return else 1
+        invoice_number = f"RCV-RET-{num:06d}"
+
+        return_invoice = ReturnInvoice.objects.create(
+            invoice_number=invoice_number, receiving_invoice=original_invoice,
+            farmer=farmer, date=timezone.now().date(), created_by=request.user, status='APPROVED',
+        )
+
+        total = Decimal('0')
+        for item_data in items:
+            parts = item_data.split('|')
+            product = Product.objects.get(id=parts[0])
+            quantity = Decimal(parts[1])
+            price = Decimal(parts[2])
+            item_total = quantity * price
+            ReturnItem.objects.create(
+                return_invoice=return_invoice, product=product,
+                quantity=quantity, unit_price=price, total=item_total,
+            )
+            total += item_total
+
+        return_invoice.total_amount = total
+        return_invoice.save()
+
+        farmer.current_balance -= total
+        farmer.total_receivables -= total
+        farmer.save()
+
+        messages.success(request, f'تم إنشاء مرتجع {invoice_number} بنجاح')
+        return redirect('receiving:list')
+
+    return render(request, 'receiving/return.html', {
+        'invoices': ReceivingInvoice.objects.filter(status='APPROVED', is_deleted=False),
+        'farmers': Farmer.objects.filter(status='ACTIVE'),
+    })

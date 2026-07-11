@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}إغلاق فترة مالية - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-lock-fill"></i> إغلاق فترات مالية</h2>
+</div>
+
+<div class="card">
+    <form method="post" style="margin-bottom:20px;">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>من تاريخ *</label>
+                <input type="date" name="start_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>إلى تاريخ *</label>
+                <input type="date" name="end_date" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>نوع الفترة</label>
+            <select name="period_type" class="form-control">
+                <option value="MONTHLY">شهري</option>
+                <option value="QUARTERLY">ربع سنوي</option>
+                <option value="ANNUAL">سنوي</option>
+            </select>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-danger" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-lock-fill"></i> إغلاق الفترة
+            </button>
+        </div>
+    </form>
+
+    <div class="card-header">
+        <span class="card-title">الفترات السابقة</span>
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>نوع الفترة</th>
+            <th>من تاريخ</th>
+            <th>إلى تاريخ</th>
+            <th>مغلق بواسطة</th>
+            <th>تاريخ الإغلاق</th>
+        </tr>
+        {% for p in periods %}
+        <tr>
+            <td>{{ p.get_period_type_display }}</td>
+            <td>{{ p.start_date }}</td>
+            <td>{{ p.end_date }}</td>
+            <td>{{ p.closed_by }}</td>
+            <td>{{ p.closed_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد فترات مغلقة</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

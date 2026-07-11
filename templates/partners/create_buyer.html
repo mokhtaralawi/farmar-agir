@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}بائع جديد - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-people"></i> إضافة بائع جديد</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الكود</label>
+                <input type="text" class="form-control" value="{{ generated_code }}" readonly
+                    style="background:#f0f0f0;">
+            </div>
+            <div class="form-group">
+                <label>الاسم *</label>
+                <input type="text" name="name" class="form-control" required placeholder="اسم المقوت">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" class="form-control" placeholder="05xxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>رقم الهوية</label>
+                <input type="text" name="id_number" class="form-control" placeholder="رقم الهوية">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>المدينة</label>
+                <input type="text" name="city" class="form-control" placeholder="المدينة">
+            </div>
+            <div class="form-group">
+                <label>الحد الائتماني</label>
+                <input type="number" name="credit_limit" class="form-control" step="0.01" placeholder="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>العنوان</label>
+            <input type="text" name="address" class="form-control" placeholder="العنوان">
+        </div>
+
+        <div class="form-group">
+            <label>ملاحظات</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ المقوت
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

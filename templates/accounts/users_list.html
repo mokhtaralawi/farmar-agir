@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}المستخدمين - جسر الزراعة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-people-fill"></i> إدارة المستخدمين</h2>
+
+<div style="margin-bottom:15px;">
+    <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> مستخدم جديد
+    </a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>#</th>
+            <th>اسم المستخدم</th>
+            <th>الاسم الكامل</th>
+            <th>رقم الهاتف</th>
+            <th>الأدوار</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for u in users %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.full_name|default:u.username }}</td>
+            <td>{{ u.phone|default:'—' }}</td>
+            <td>
+                {% for role in u.roles.all %}
+                <span class="badge badge-info">{{ role.name }}</span>
+                {% empty %}
+                <span class="badge badge-secondary">بدون دور</span>
+                {% endfor %}
+            </td>
+            <td>
+                {% if u.is_active %}
+                <span class="badge badge-success">نشط</span>
+                {% else %}
+                <span class="badge badge-danger">معطل</span>
+                {% endif %}
+                {% if u.is_superuser %}<span class="badge badge-warning">مدير عام</span>{% endif %}
+            </td>
+            <td style="display:flex;gap:5px;">
+                <a href="{% url 'accounts:user_edit' u.id %}" class="btn btn-sm btn-light">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                {% if not u.is_superuser or u.id == request.user.id %}
+                <a href="{% url 'accounts:user_toggle_active' u.id %}" class="btn btn-sm btn-light"
+                   onclick="return confirm('تأكيد {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %} المستخدم؟')">
+                    <i class="bi bi-{% if u.is_active %}lock{% else %}unlock{% endif %}"></i>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;">لا يوجد مستخدمين</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

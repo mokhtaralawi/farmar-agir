@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}فاتورة بيع جديدة - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-cart"></i> فاتورة بيع جديدة</h2>
+
+<div class="card">
+    <form method="post" id="salesForm">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>المقوت *</label>
+                <select name="buyer" class="form-control" required>
+                    <option value="">اختر المقوت</option>
+                    {% for buyer in buyers %}
+                    <option value="{{ buyer.id }}">{{ buyer.code }} - {{ buyer.name }} (رصيد: {{ buyer.current_balance
+                        }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>المخزن *</label>
+                <select name="warehouse" class="form-control" required>
+                    <option value="">اختر المخزن</option>
+                    {% for w in warehouses %}
+                    <option value="{{ w.id }}">{{ w.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>التاريخ</label>
+                <input type="date" name="date" class="form-control" value="{{ today }}" required>
+            </div>
+            <div class="form-group">
+                <label>ملاحظات</label>
+                <input type="text" name="notes" class="form-control" placeholder="ملاحظات (اختياري)">
+            </div>
+        </div>
+
+        <hr style="margin:20px 0;">
+
+        <h3 style="margin-bottom:15px;"><i class="bi bi-box-seam"></i> الأصناف</h3>
+
+        <table class="data-table" id="itemsTable">
+            <tr>
+                <th>الصنف</th>
+                <th>الوحدة</th>
+                <th>الكمية</th>
+                <th>سعر الوحدة</th>
+                <th>الخصم</th>
+                <th>الإجمالي</th>
+                <th></th>
+            </tr>
+            <tr class="item-row">
+                <td>
+                    <select name="items[]" class="form-control product-select" required>
+                        <option value="">اختر الصنف</option>
+                        {% for p in products %}
+                        <option value="{{ p.id }}">{{ p.code }} - {{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="items[]" class="form-control unit-select" required>
+                        <option value="">الوحدة</option>
+                        {% for u in units %}
+                        <option value="{{ u.id }}">{{ u.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" name="items[]" class="form-control qty" step="0.01" min="0" required></td>
+                <td><input type="number" name="items[]" class="form-control price" step="0.01" min="0" required></td>
+                <td><input type="number" name="items[]" class="form-control discount" step="0.01" min="0" value="0">
+                </td>
+                <td class="item-total">0</td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-row" onclick="removeRow(this)"><i
+                            class="bi bi-trash"></i></button></td>
+            </tr>
+        </table>
+
+        <div style="margin-top:15px;display:flex;gap:10px;">
+            <button type="button" class="btn btn-light" onclick="addRow()"><i class="bi bi-plus-lg"></i> إضافة
+                صنف</button>
+        </div>
+
+        <hr style="margin:20px 0;">
+
+        <div style="text-align:center;font-size:20px;font-weight:700;color:#FF6F00;">
+            الإجمالي: <span id="grandTotal">0</span>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ الفاتورة
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addRow() {
+        const table = document.getElementById('itemsTable');
+        const lastRow = table.querySelector('.item-row:last-child');
+        const newRow = lastRow.cloneNode(true);
+        newRow.querySelectorAll('input,select').forEach(el => el.value = '');
+        newRow.querySelector('.item-total').textContent = '0';
+        newRow.querySelector('.discount').value = '0';
+        table.appendChild(newRow);
+        attachListeners(newRow);
+    }
+
+    function removeRow(btn) {
+        const table = document.getElementById('itemsTable');
+        if (table.querySelectorAll('.item-row').length > 1) {
+            btn.closest('tr').remove();
+            updateTotals();
+        }
+    }
+
+    function attachListeners(row) {
+        const qty = row.querySelector('.qty');
+        const price = row.querySelector('.price');
+        const discount = row.querySelector('.discount');
+        const total = row.querySelector('.item-total');
+
+        function calc() {
+            const q = parseFloat(qty.value) || 0;
+            const p = parseFloat(price.value) || 0;
+            const d = parseFloat(discount.value) || 0;
+            total.textContent = Math.max(0, q * p - d).toFixed(2);
+            updateTotals();
+        }
+
+        qty.addEventListener('input', calc);
+        price.addEventListener('input', calc);
+        discount.addEventListener('input', calc);
+    }
+
+    function updateTotals() {
+        let total = 0;
+        document.querySelectorAll('.item-total').forEach(el => {
+            total += parseFloat(el.textContent) || 0;
+        });
+        document.getElementById('grandTotal').textContent = total.toFixed(2);
+    }
+
+    document.querySelectorAll('.item-row').forEach(attachListeners);
+
+    document.getElementById('salesForm').addEventListener('submit', function (e) {
+        const rows = document.querySelectorAll('.item-row');
+        const inputs = this.querySelectorAll('[name="items[]"]');
+        let idx = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const selects = row.querySelectorAll('select');
+            const inputsRow = row.querySelectorAll('input');
+            if (selects.length >= 2 && inputsRow.length >= 3) {
+                const val = `${selects[0].value}|${selects[1].value}|${inputsRow[0].value}|${inputsRow[1].value}|${inputsRow[2].value}`;
+                inputs[idx].value = val;
+                idx++;
+            }
+        }
+    });
+</script>
+
+{% endblock %}

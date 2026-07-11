@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}إقفال يومي - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-lock-fill"></i> إقفال يومي</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>الصندوق *</label>
+            <select name="cashbox" class="form-control" required>
+                <option value="">اختر الصندوق</option>
+                {% for box in boxes %}
+                <option value="{{ box.id }}">{{ box.name }} - الرصيد: {{ box.current_balance }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-danger" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-lock-fill"></i> إقفال الصندوق
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

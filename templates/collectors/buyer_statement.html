@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}كشف حساب {{ buyer.name }} - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-receipt"></i> كشف حساب {{ buyer.name }}</h2>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="icon orange"><i class="bi bi-cart"></i></div>
+        <div class="info">
+            <h3>{{ sales.count }}</h3>
+            <p>فواتير بيع</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon blue"><i class="bi bi-cash-stack"></i></div>
+        <div class="info">
+            <h3>{{ receipts.count }}</h3>
+            <p>سندات قبض</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="icon red"><i class="bi bi-calculator"></i></div>
+        <div class="info">
+            <h3>{{ buyer.current_balance }}</h3>
+            <p>الرصيد الحالي</p>
+        </div>
+    </div>
+</div>
+
+{% if sales %}
+<div class="card">
+    <div class="card-header"><span class="card-title">فواتير البيع</span></div>
+    <table class="data-table">
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>التاريخ</th>
+            <th>الإجمالي</th>
+            <th>الخصم</th>
+            <th>الصافي</th>
+        </tr>
+        {% for inv in sales %}
+        <tr>
+            <td>{{ inv.invoice_number }}</td>
+            <td>{{ inv.date }}</td>
+            <td>{{ inv.total_amount }}</td>
+            <td>{{ inv.total_discount }}</td>
+            <td><strong>{{ inv.net_amount }}</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if receipts %}
+<div class="card">
+    <div class="card-header"><span class="card-title">سندات القبض</span></div>
+    <table class="data-table">
+        <tr>
+            <th>رقم السند</th>
+            <th>التاريخ</th>
+            <th>المبلغ</th>
+            <th>الطريقة</th>
+        </tr>
+        {% for r in receipts %}
+        <tr>
+            <td>{{ r.receipt_number }}</td>
+            <td>{{ r.date }}</td>
+            <td>{{ r.amount }}</td>
+            <td>{{ r.get_payment_method_display }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

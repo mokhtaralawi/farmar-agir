@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}سلفة جديدة - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-cash-coin"></i> سلفة جديدة</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>الموظف *</label>
+            <select name="employee" class="form-control" required>
+                <option value="">اختر الموظف</option>
+                {% for emp in employees %}
+                <option value="{{ emp.id }}">{{ emp.code }} - {{ emp.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>المبلغ *</label>
+            <input type="number" name="amount" class="form-control" step="0.01" min="0" required
+                placeholder="أدخل المبلغ">
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ السلفة
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

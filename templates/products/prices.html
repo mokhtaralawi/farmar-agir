@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}أسعار {{ product.name }} - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-tags"></i> أسعار {{ product.name }}</h2>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>التاريخ</th>
+            <th>سعر الاستلام</th>
+            <th>سعر البيع</th>
+            <th>أنشأه</th>
+        </tr>
+        {% for price in prices %}
+        <tr>
+            <td>{{ price.created_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ price.receiving_price }}</td>
+            <td>{{ price.selling_price }}</td>
+            <td>{{ price.created_by }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد أسعار مسجلة</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

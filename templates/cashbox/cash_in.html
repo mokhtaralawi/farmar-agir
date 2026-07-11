@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}إيداع - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-box-arrow-in-down"></i> إيداع في الصندوق</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>الصندوق *</label>
+            <select name="cashbox" class="form-control" required>
+                <option value="">اختر الصندوق</option>
+                {% for box in boxes %}
+                <option value="{{ box.id }}">{{ box.name }} ({{ box.branch.name|default:"-" }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>المبلغ *</label>
+            <input type="number" name="amount" class="form-control" step="0.01" min="0" required
+                placeholder="أدخل المبلغ">
+        </div>
+
+        <div class="form-group">
+            <label>الوصف</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="وصف الإيداع"></textarea>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ الإيداع
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
