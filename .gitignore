@@ -8,6 +8,10 @@ env/
 # Django
 *.sqlite3
 *.log
+staticfiles/
+
+# Environment
+.env
 
 # Media
 media/

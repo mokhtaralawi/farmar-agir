@@ -58,17 +58,49 @@
 |----------|-------------|-------|
 | admin | admin123 | مدير عام |
 
+> **ملاحظة:** تم تغيير اسم المستخدم الافتراضي إلى `mohamadsadek` وكلمة المرور إلى `770520964`.
+
 ## التشغيل
 
 ```bash
-cd /home/ubuntu/agri_bridge
+cd E:\pos\agri_bridge\agri_bridge
 
-# إنشاء المستخدم الإداري (تم إنشاؤه مسبقاً)
-python3 manage.py createsuperuser
+# تفعيل البيئة الافتراضية
+.\venv\Scripts\activate
 
-# تشغيل الخادم
-python3 manage.py runserver 0.0.0.0:8000
+# تثبيت المتطلبات
+pip install -r requirements.txt
+
+# نسخ ملف البيئة
+copy .env.example .env
+
+# تطبيق المايقريشنز
+python manage.py migrate
+
+# تجميع الملفات الثابتة للإنتاج
+python manage.py collectstatic --noinput
+
+# تشغيل الخادم للتطوير
+python manage.py runserver 0.0.0.0:8000
+
+# تشغيل الخادم للإنتاج (Gunicorn)
+gunicorn agri_bridge.wsgi --bind 0.0.0.0:8000 --workers 3
 ```
+
+## النشر على DatabaseMart
+
+1. ارفع الملفات إلى الخادم
+2. ثبت المتطلبات عبر `pip install -r requirements.txt`
+3. أنشئ ملف `.env` بالإعدادات المناسبة (PostgreSQL)
+4. طبق المايقريشنز: `python manage.py migrate`
+5. جمع الملفات الثابتة: `python manage.py collectstatic --noinput`
+6. شغل Gunicorn عبر Procfile
+
+## عنوان الموقع
+
+[https://alqissy-qat.dev313.site](https://alqissy-qat.dev313.site)
+
+---
 
 ## عناوين URL الرئيسية
 
