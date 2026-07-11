@@ -37,14 +37,14 @@ def _base64url_decode(data):
     return base64.urlsafe_b64decode(data + '===')
 
 
-def _get_origin():
-    return settings.CSRF_TRUSTED_ORIGINS[0] if settings.CSRF_TRUSTED_ORIGINS else 'http://localhost:8000'
+def _get_origin(request):
+    scheme = 'https' if request.is_secure() else 'http'
+    host = request.get_host()
+    return f'{scheme}://{host}'
 
 
-def _get_rp_id():
-    from urllib.parse import urlparse
-    origin = _get_origin()
-    return urlparse(origin).hostname or 'localhost'
+def _get_rp_id(request):
+    return request.get_host().split(':')[0]
 
 
 def _extract_cose_public_key(attestation_object_bytes):
@@ -142,7 +142,7 @@ def begin_registration(request):
     user_name = request.user.username
     user_display = request.user.full_name or request.user.username
 
-    rp_id = _get_rp_id()
+    rp_id = _get_rp_id(request)
 
     creation_options = {
         'challenge': challenge_b64,
@@ -187,7 +187,7 @@ def finish_registration(request):
             return JsonResponse({'error': 'التحدي غير مطابق'}, status=400)
 
         # Verify origin
-        expected_origin = _get_origin()
+        expected_origin = _get_origin(request)
         if client_data.get('origin') != expected_origin:
             return JsonResponse({'error': 'المنشأ غير صحيح'}, status=400)
 
@@ -236,7 +236,7 @@ def begin_login(request):
         challenge_b64 = _base64url_encode(challenge)
         cache.set(f'webauthn_challenge_login_{user.id}', challenge_b64, timeout=120)
 
-        rp_id = _get_rp_id()
+        rp_id = _get_rp_id(request)
 
         get_options = {
             'challenge': challenge_b64,
@@ -291,7 +291,7 @@ def finish_login(request):
             return JsonResponse({'error': 'التحدي غير مطابق'}, status=400)
 
         # Verify origin
-        expected_origin = _get_origin()
+        expected_origin = _get_origin(request)
         if client_data.get('origin') != expected_origin:
             return JsonResponse({'error': 'المنشأ غير صحيح'}, status=400)
 
@@ -299,7 +299,7 @@ def finish_login(request):
         auth_data_bytes = _base64url_decode(authenticator_data_b64)
 
         # Verify rpIdHash
-        rp_id_hash = hashlib.sha256(_get_rp_id().encode()).digest()
+        rp_id_hash = hashlib.sha256(_get_rp_id(request).encode()).digest()
         if auth_data_bytes[:32] != rp_id_hash:
             return JsonResponse({'error': 'معرف المورد غير مطابق'}, status=400)
 

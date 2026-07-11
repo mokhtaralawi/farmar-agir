@@ -154,6 +154,12 @@
             box-shadow: var(--shadow);
             padding: 20px;
             margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .card-body {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .card-header {
@@ -398,6 +404,12 @@
             color: var(--info);
         }
 
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -411,10 +423,15 @@
 
             .main-content {
                 margin-right: 0;
+                padding: 15px;
             }
 
             .mobile-menu-btn {
                 display: block !important;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
             }
 
             .form-row {
@@ -432,6 +449,20 @@
             .data-table th,
             .data-table td {
                 padding: 8px 5px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 10px;
             }
         }
 
