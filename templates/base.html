@@ -632,12 +632,10 @@
             </a>
         </div>
 
-        <div class="nav-section">
-            <div id="installSection" style="display:none;">
-                <a href="#" class="nav-item" id="installBtn" onclick="installApp(); return false;">
-                    <i class="bi bi-phone"></i> تثبيت التطبيق
-                </a>
-            </div>
+        <div class="nav-section" id="installSection">
+            <a href="#" class="nav-item" id="installBtn" onclick="installApp(); return false;">
+                <i class="bi bi-phone"></i> تثبيت التطبيق
+            </a>
         </div>
 
         {% if request.user.is_superuser or request.user.is_staff %}
@@ -688,21 +686,34 @@
 
         // PWA Install
         var deferredPrompt;
-        window.addEventListener('beforeinstallprompt', function(e) {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installSection').style.display = 'block';
-        });
+        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+            document.getElementById('installSection').style.display = 'none';
+        } else {
+            window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+        }
 
         function installApp() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(function(choice) {
-                if (choice.outcome === 'accepted') {
-                    document.getElementById('installSection').style.display = 'none';
-                }
-                deferredPrompt = null;
-            });
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function(choice) {
+                    if (choice.outcome === 'accepted') {
+                        document.getElementById('installSection').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+                return;
+            }
+
+            // iOS / fallback
+            var ua = navigator.userAgent;
+            if (/iPad|iPhone|iPod/.test(ua)) {
+                alert('اضغط على زر المشاركة () في الشريط السفلي ثم اختر "إضافة إلى الشاشة الرئيسية"');
+            } else {
+                alert('افتح القائمة (⋮) في المتصفح واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"');
+            }
         }
     </script>
 </body>
