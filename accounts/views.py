@@ -47,6 +47,7 @@ def profile_view(request):
             else:
                 request.user.username = new_username
                 request.user.save()
+                request.user.refresh_from_db()
                 messages.success(request, 'تم تغيير اسم المستخدم بنجاح')
         elif action == 'change_password':
             current = request.POST.get('current_password', '')
