@@ -20,6 +20,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            if not request.POST.get('remember_me'):
+                request.session.set_expiry(0)
             return redirect('reports:dashboard')
         else:
             messages.error(request, 'اسم المستخدم أو كلمة المرور غير صحيحة')

@@ -48,6 +48,9 @@ class User(AbstractUser):
     last_login_ip = models.GenericIPAddressField(_('آخر IP'), null=True, blank=True)
     created_at = models.DateTimeField(_('تاريخ الإنشاء'), auto_now_add=True)
     updated_at = models.DateTimeField(_('تاريخ التحديث'), auto_now=True)
+    webauthn_credential_id = models.TextField(_('معرف البصمة'), blank=True, null=True)
+    webauthn_public_key = models.TextField(_('مفتاح البصمة'), blank=True, null=True)
+    webauthn_enabled = models.BooleanField(_('تفعيل البصمة'), default=False)
 
     class Meta:
         verbose_name = _('مستخدم')

@@ -52,4 +52,164 @@
     </div>
 </div>
 
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-fingerprint"></i> البصمة (WebAuthn)</h3>
+        <span class="badge" id="fingerprintBadge">جاري التحقق...</span>
+    </div>
+    <p style="color:var(--gray);font-size:13px;margin-bottom:15px;">
+        سجّل بصمة إصبعك لتسريع تسجيل الدخول بدلاً من كتابة كلمة المرور.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-primary" id="btnRegisterFingerprint" onclick="registerFingerprint()" disabled>
+            <i class="bi bi-plus-circle"></i> ربط بصمة جديدة
+        </button>
+        <button class="btn btn-danger" id="btnDisableFingerprint" onclick="disableFingerprint()" style="display:none;">
+            <i class="bi bi-x-circle"></i> تعطيل البصمة
+        </button>
+    </div>
+    <div id="fingerprintMessage" style="margin-top:12px;display:none;"></div>
+</div>
+
+<script>
+(function() {
+    const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+        || document.cookie.match(/csrftoken=([^;]+)/)?.[1]
+        || '';
+
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : '';
+    }
+
+    function base64urlToBytes(base64url) {
+        const padding = '='.repeat((4 - base64url.length % 4) % 4);
+        const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/') + padding;
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+    }
+
+    function bytesToBase64url(bytes) {
+        let binary = '';
+        bytes.forEach(b => binary += String.fromCharCode(b));
+        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function showMessage(text, type) {
+        const el = document.getElementById('fingerprintMessage');
+        el.style.display = 'block';
+        el.className = 'alert alert-' + type;
+        el.textContent = text;
+    }
+
+    function updateUI(enabled) {
+        const badge = document.getElementById('fingerprintBadge');
+        const btnReg = document.getElementById('btnRegisterFingerprint');
+        const btnDis = document.getElementById('btnDisableFingerprint');
+        if (enabled) {
+            badge.className = 'badge badge-success';
+            badge.textContent = 'مفعلة';
+            btnReg.style.display = 'none';
+            btnDis.style.display = 'inline-flex';
+        } else {
+            badge.className = 'badge badge-danger';
+            badge.textContent = 'غير مفعلة';
+            btnReg.style.display = 'inline-flex';
+            btnReg.disabled = false;
+            btnDis.style.display = 'none';
+        }
+    }
+
+    async function checkStatus() {
+        try {
+            const res = await fetch('/accounts/webauthn/status/', { credentials: 'same-origin' });
+            const data = await res.json();
+            updateUI(data.enabled);
+        } catch {
+            document.getElementById('fingerprintBadge').textContent = 'خطأ في التحقق';
+        }
+    }
+
+    window.registerFingerprint = async function() {
+        const btn = document.getElementById('btnRegisterFingerprint');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري التسجيل...';
+        document.getElementById('fingerprintMessage').style.display = 'none';
+
+        try {
+            const regRes = await fetch('/accounts/webauthn/begin-register/', { credentials: 'same-origin' });
+            const options = await regRes.json();
+            if (!regRes.ok) throw new Error(options.error || 'فشل بدء التسجيل');
+
+            const challenge = base64urlToBytes(options.challenge);
+            const userId = base64urlToBytes(options.user.id);
+
+            const credential = await navigator.credentials.create({
+                publicKey: {
+                    challenge: challenge,
+                    rp: options.rp,
+                    user: { id: userId, name: options.user.name, displayName: options.user.displayName },
+                    pubKeyCredParams: options.pubKeyCredParams,
+                    timeout: options.timeout,
+                    attestation: options.attestation,
+                }
+            });
+
+            const finishRes = await fetch('/accounts/webauthn/finish-register/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    id: credential.id,
+                    rawId: bytesToBase64url(new Uint8Array(credential.rawId)),
+                    response: {
+                        clientDataJSON: bytesToBase64url(new Uint8Array(credential.response.clientDataJSON)),
+                        attestationObject: bytesToBase64url(new Uint8Array(credential.response.attestationObject)),
+                    },
+                    type: credential.type,
+                })
+            });
+
+            const result = await finishRes.json();
+            if (finishRes.ok && result.success) {
+                showMessage('تم ربط البصمة بنجاح!', 'success');
+                updateUI(true);
+            } else {
+                throw new Error(result.error || 'فشل حفظ البصمة');
+            }
+        } catch (err) {
+            showMessage('خطأ: ' + err.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-plus-circle"></i> ربط بصمة جديدة';
+        }
+    };
+
+    window.disableFingerprint = async function() {
+        if (!confirm('هل أنت متأكد من تعطيل البصمة؟')) return;
+        document.getElementById('fingerprintMessage').style.display = 'none';
+
+        try {
+            const res = await fetch('/accounts/webauthn/disable/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                credentials: 'same-origin',
+            });
+            const result = await res.json();
+            if (res.ok && result.success) {
+                showMessage('تم تعطيل البصمة بنجاح.', 'success');
+                updateUI(false);
+            } else {
+                throw new Error(result.error || 'فشل التعطيل');
+            }
+        } catch (err) {
+            showMessage('خطأ: ' + err.message, 'error');
+        }
+    };
+
+    checkStatus();
+})();
+</script>
+
 {% endblock %}
