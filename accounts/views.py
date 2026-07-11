@@ -2,6 +2,7 @@
 Accounts Views - Login, Logout, Profile, and User Management
 """
 
+import unicodedata
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -14,7 +15,7 @@ def login_view(request):
         return redirect('reports:dashboard')
     
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = unicodedata.normalize('NFC', request.POST.get('username', '').strip())
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user:
