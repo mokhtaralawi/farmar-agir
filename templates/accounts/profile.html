@@ -124,7 +124,8 @@
 
     async function checkStatus() {
         try {
-            const res = await fetch('/accounts/webauthn/status/', { credentials: 'same-origin' });
+            const res = await fetch('/webauthn/status/', { credentials: 'same-origin' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
             updateUI(data.enabled);
         } catch {
@@ -139,9 +140,16 @@
         document.getElementById('fingerprintMessage').style.display = 'none';
 
         try {
-            const regRes = await fetch('/accounts/webauthn/begin-register/', { credentials: 'same-origin' });
+            if (!window.PublicKeyCredential) {
+                throw new Error('متصفحك لا يدعم تسجيل البصمة');
+            }
+
+            const regRes = await fetch('/webauthn/begin-register/', { credentials: 'same-origin' });
+            if (!regRes.ok) {
+                const errData = await regRes.json().catch(() => ({}));
+                throw new Error(errData.error || 'فشل بدء التسجيل (HTTP ' + regRes.status + ')');
+            }
             const options = await regRes.json();
-            if (!regRes.ok) throw new Error(options.error || 'فشل بدء التسجيل');
 
             const challenge = base64urlToBytes(options.challenge);
             const userId = base64urlToBytes(options.user.id);
@@ -157,7 +165,7 @@
                 }
             });
 
-            const finishRes = await fetch('/accounts/webauthn/finish-register/', {
+            const finishRes = await fetch('/webauthn/finish-register/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                 credentials: 'same-origin',
@@ -191,7 +199,7 @@
         document.getElementById('fingerprintMessage').style.display = 'none';
 
         try {
-            const res = await fetch('/accounts/webauthn/disable/', {
+            const res = await fetch('/webauthn/disable/', {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') },
                 credentials: 'same-origin',

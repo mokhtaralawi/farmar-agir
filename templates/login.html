@@ -152,6 +152,97 @@
                 icon.className = 'bi bi-eye';
             }
         }
+
+        function getCookie(name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : '';
+        }
+
+        function base64urlToBytes(base64url) {
+            var padding = '='.repeat((4 - base64url.length % 4) % 4);
+            var base64 = base64url.replace(/-/g, '+').replace(/_/g, '/') + padding;
+            var binary = atob(base64);
+            var bytes = new Uint8Array(binary.length);
+            for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return bytes;
+        }
+
+        function bytesToBase64url(bytes) {
+            var binary = '';
+            bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        if (window.PublicKeyCredential) {
+            document.getElementById('fingerprintBtn').style.display = 'block';
+        }
+
+        async function startFingerprintLogin() {
+            var username = document.getElementById('loginUsername').value.trim();
+            if (!username) {
+                alert('أدخل اسم المستخدم أولاً');
+                return;
+            }
+
+            var btn = document.getElementById('fingerprintBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري التحقق...';
+
+            try {
+                var loginRes = await fetch('/webauthn/begin-login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ username: username })
+                });
+                if (!loginRes.ok) {
+                    var errData = await loginRes.json().catch(function() { return {}; });
+                    throw new Error(errData.error || 'فشل بدء تسجيل الدخول');
+                }
+                var options = await loginRes.json();
+
+                var credential = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: base64urlToBytes(options.challenge),
+                        rpId: options.rpId,
+                        allowCredentials: options.allowCredentials.map(function(c) {
+                            return { id: base64urlToBytes(c.id), type: c.type };
+                        }),
+                        timeout: options.timeout,
+                        userVerification: options.userVerification,
+                    }
+                });
+
+                var finishRes = await fetch('/webauthn/finish-login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        username: username,
+                        id: credential.id,
+                        rawId: bytesToBase64url(new Uint8Array(credential.rawId)),
+                        response: {
+                            clientDataJSON: bytesToBase64url(new Uint8Array(credential.response.clientDataJSON)),
+                            authenticatorData: bytesToBase64url(new Uint8Array(credential.response.authenticatorData)),
+                            signature: bytesToBase64url(new Uint8Array(credential.response.signature)),
+                            userHandle: credential.response.userHandle ? bytesToBase64url(new Uint8Array(credential.response.userHandle)) : null,
+                        },
+                        type: credential.type,
+                    })
+                });
+
+                var result = await finishRes.json();
+                if (finishRes.ok && result.success) {
+                    window.location.href = result.redirect || '/';
+                } else {
+                    throw new Error(result.error || 'فشل تسجيل الدخول');
+                }
+            } catch (err) {
+                alert('خطأ: ' + err.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-fingerprint"></i> دخول ببصمة الإصبع';
+            }
+        }
     </script>
 </body>
 </html>
