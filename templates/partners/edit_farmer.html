@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}تعديل الرعوي - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-person-badge"></i> تعديل بيانات الرعوي</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الكود</label>
+                <input type="text" class="form-control" value="{{ farmer.code }}" readonly style="background:#f0f0f0;">
+            </div>
+            <div class="form-group">
+                <label>الاسم *</label>
+                <input type="text" name="name" class="form-control" required value="{{ farmer.name }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" class="form-control" value="{{ farmer.phone }}">
+            </div>
+            <div class="form-group">
+                <label>رقم الهوية</label>
+                <input type="text" name="id_number" class="form-control" value="{{ farmer.id_number }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>المدينة</label>
+                <input type="text" name="city" class="form-control" value="{{ farmer.city }}">
+            </div>
+            <div class="form-group">
+                <label>العنوان</label>
+                <input type="text" name="address" class="form-control" value="{{ farmer.address }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>الحالة</label>
+            <select name="status" class="form-control">
+                <option value="ACTIVE" {% if farmer.status == 'ACTIVE' %}selected{% endif %}>نشط</option>
+                <option value="INACTIVE" {% if farmer.status == 'INACTIVE' %}selected{% endif %}>غير نشط</option>
+                <option value="SUSPENDED" {% if farmer.status == 'SUSPENDED' %}selected{% endif %}>معلق</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>ملاحظات</label>
+            <textarea name="notes" class="form-control" rows="3">{{ farmer.notes }}</textarea>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ التعديلات
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

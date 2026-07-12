@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}تعديل المقوت - نظام البيع للمجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-people"></i> تعديل بيانات المقوت</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الكود</label>
+                <input type="text" class="form-control" value="{{ buyer.code }}" readonly style="background:#f0f0f0;">
+            </div>
+            <div class="form-group">
+                <label>الاسم *</label>
+                <input type="text" name="name" class="form-control" required value="{{ buyer.name }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" class="form-control" value="{{ buyer.phone }}">
+            </div>
+            <div class="form-group">
+                <label>المدينة</label>
+                <input type="text" name="city" class="form-control" value="{{ buyer.city }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>الحد الائتماني</label>
+                <input type="number" name="credit_limit" class="form-control" step="0.01" value="{{ buyer.credit_limit }}">
+            </div>
+            <div class="form-group">
+                <label>الحالة</label>
+                <select name="status" class="form-control">
+                    <option value="ACTIVE" {% if buyer.status == 'ACTIVE' %}selected{% endif %}>نشط</option>
+                    <option value="INACTIVE" {% if buyer.status == 'INACTIVE' %}selected{% endif %}>غير نشط</option>
+                    <option value="SUSPENDED" {% if buyer.status == 'SUSPENDED' %}selected{% endif %}>موقوف</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>العنوان</label>
+            <input type="text" name="address" class="form-control" value="{{ buyer.address }}">
+        </div>
+
+        <div class="form-group">
+            <label>ملاحظات</label>
+            <textarea name="notes" class="form-control" rows="3">{{ buyer.notes }}</textarea>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;">
+            <button type="submit" class="btn btn-primary" style="padding:12px 40px;font-size:16px;">
+                <i class="bi bi-check-lg"></i> حفظ التعديلات
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

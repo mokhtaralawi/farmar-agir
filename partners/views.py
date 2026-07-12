@@ -55,3 +55,39 @@ def create_buyer(request):
         messages.success(request, 'تم إنشاء الرعوي بنجاح')
         return redirect('partners:buyers')
     return render(request, 'partners/create_buyer.html', {'generated_code': Buyer.generate_code()})
+
+
+@login_required
+def edit_farmer(request, pk):
+    from django.shortcuts import get_object_or_404
+    farmer = get_object_or_404(Farmer, id=pk)
+    if request.method == 'POST':
+        farmer.name = request.POST.get('name', farmer.name)
+        farmer.phone = request.POST.get('phone', farmer.phone)
+        farmer.id_number = request.POST.get('id_number', farmer.id_number)
+        farmer.city = request.POST.get('city', farmer.city)
+        farmer.address = request.POST.get('address', farmer.address)
+        farmer.notes = request.POST.get('notes', farmer.notes)
+        farmer.status = request.POST.get('status', farmer.status)
+        farmer.save()
+        messages.success(request, f'تم تعديل بيانات {farmer.name} بنجاح')
+        return redirect('partners:farmers')
+    return render(request, 'partners/edit_farmer.html', {'farmer': farmer})
+
+
+@login_required
+def edit_buyer(request, pk):
+    from django.shortcuts import get_object_or_404
+    buyer = get_object_or_404(Buyer, id=pk)
+    if request.method == 'POST':
+        buyer.name = request.POST.get('name', buyer.name)
+        buyer.phone = request.POST.get('phone', buyer.phone)
+        buyer.city = request.POST.get('city', buyer.city)
+        buyer.address = request.POST.get('address', buyer.address)
+        buyer.credit_limit = request.POST.get('credit_limit') or buyer.credit_limit
+        buyer.notes = request.POST.get('notes', buyer.notes)
+        buyer.status = request.POST.get('status', buyer.status)
+        buyer.save()
+        messages.success(request, f'تم تعديل بيانات {buyer.name} بنجاح')
+        return redirect('partners:buyers')
+    return render(request, 'partners/edit_buyer.html', {'buyer': buyer})

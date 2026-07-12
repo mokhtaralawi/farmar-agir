@@ -35,6 +35,9 @@
                 {% endif %}
             </td>
             <td>
+                <a href="{% url 'partners:edit_buyer' buyer.id %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i>
+                </a>
                 <a href="{% url 'collectors:buyer_statement' buyer.id %}" class="btn btn-sm btn-info">
                     <i class="bi bi-receipt"></i> كشف حساب
                 </a>

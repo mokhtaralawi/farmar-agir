@@ -13,7 +13,6 @@
                 <label>الرعوي *</label>
                 <input type="text" id="buyerSearch" class="form-control" placeholder="اكتب اسم الرعوي..." autocomplete="off">
                 <input type="hidden" name="buyer" id="buyerId" required>
-                <div class="autocomplete-list" id="buyerList"></div>
             </div>
             <div class="form-group">
                 <label>المخزن *</label>
@@ -102,21 +101,24 @@
 
     const buyerSearch = document.getElementById('buyerSearch');
     const buyerId = document.getElementById('buyerId');
-    const buyerList = document.getElementById('buyerList');
-
-    document.body.appendChild(buyerList);
+    const buyerDropdown = document.createElement('div');
+    buyerDropdown.className = 'autocomplete-list';
+    buyerDropdown.style.display = 'none';
+    document.body.appendChild(buyerDropdown);
 
     buyerSearch.addEventListener('input', function() {
         const q = this.value.toLowerCase().trim();
-        buyerList.innerHTML = '';
-        if (q.length < 1) { buyerList.style.display = 'none'; return; }
-        const matches = buyersData.filter(b => b.name.toLowerCase().includes(q) || b.code.toLowerCase().includes(q));
-        if (matches.length === 0) { buyerList.style.display = 'none'; return; }
-        const rect = this.getBoundingClientRect();
-        buyerList.style.top = rect.bottom + 'px';
-        buyerList.style.left = rect.left + 'px';
-        buyerList.style.width = rect.width + 'px';
-        matches.forEach(b => {
+        buyerDropdown.innerHTML = '';
+        if (q.length < 1) { buyerDropdown.style.display = 'none'; return; }
+        const matches = buyersData.filter(function(b) {
+            return b.name.toLowerCase().indexOf(q) !== -1 || b.code.toLowerCase().indexOf(q) !== -1;
+        });
+        if (matches.length === 0) { buyerDropdown.style.display = 'none'; return; }
+        const rect = buyerSearch.getBoundingClientRect();
+        buyerDropdown.style.top = (rect.bottom + window.scrollY) + 'px';
+        buyerDropdown.style.left = (rect.left + window.scrollX) + 'px';
+        buyerDropdown.style.width = rect.width + 'px';
+        matches.forEach(function(b) {
             const div = document.createElement('div');
             div.className = 'autocomplete-item';
             div.innerHTML = '<strong>' + b.code + '</strong> - ' + b.name + ' <span style="color:#888;font-size:12px;">رصيد: ' + b.current_balance + '</span>';
@@ -124,8 +126,16 @@
                 ev.preventDefault();
                 buyerSearch.value = b.name;
                 buyerId.value = b.id;
-                buyerList.style.display = 'none';
+                buyerDropdown.style.display = 'none';
             });
+            buyerDropdown.appendChild(div);
+        });
+        buyerDropdown.style.display = 'block';
+    });
+
+    buyerSearch.addEventListener('blur', function() {
+        setTimeout(function() { buyerDropdown.style.display = 'none'; }, 200);
+    });
             buyerList.appendChild(div);
         });
         buyerList.style.display = 'block';

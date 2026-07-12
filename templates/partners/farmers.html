@@ -33,6 +33,9 @@
                 {% endif %}
             </td>
             <td>
+                <a href="{% url 'partners:edit_farmer' farmer.id %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i>
+                </a>
                 <a href="{% url 'payments:farmer_statement' farmer.id %}" class="btn btn-sm btn-info">
                     <i class="bi bi-receipt"></i> كشف حساب
                 </a>
