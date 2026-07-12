@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Farmer(models.Model):
-    """الرعويون"""
+    """الرعية"""
     STATUS_CHOICES = [
         ('ACTIVE', _('نشط')),
         ('INACTIVE', _('غير نشط')),
@@ -38,7 +38,7 @@ class Farmer(models.Model):
 
     class Meta:
         verbose_name = _('رعوي')
-        verbose_name_plural = _('الرعويون')
+        verbose_name_plural = _('الرعية')
         ordering = ['name']
 
     def __str__(self):

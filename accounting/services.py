@@ -167,7 +167,7 @@ class AccountingService:
                 'description': f"استلام بضاعة - فاتورة {invoice.invoice_number}",
             },
             {
-                'account_id': Account.objects.filter(name__icontains='الرعويون').first().id,
+                'account_id': Account.objects.filter(name__icontains='الرعية').first().id,
                 'debit': 0,
                 'credit': invoice.total_amount,
                 'description': f"مستحقات رعوي - {invoice.farmer.name}",
@@ -257,7 +257,7 @@ class AccountingService:
         from core.models import Account
         entries = [
             {
-                'account_id': Account.objects.filter(name__icontains='الرعويون').first().id,
+                'account_id': Account.objects.filter(name__icontains='الرعية').first().id,
                 'debit': voucher.amount,
                 'credit': 0,
                 'description': f"صرف - سند {voucher.voucher_number}",

@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'رعوي',
-                'verbose_name_plural': 'الرعويون',
+                'verbose_name_plural': 'الرعية',
                 'ordering': ['name'],
             },
         ),

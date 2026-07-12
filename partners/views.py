@@ -1,5 +1,5 @@
 """
-Partners Views - الرعويون والمقاوته
+Partners Views - الرعية والمقاوته
 """
 
 from django.shortcuts import render, redirect

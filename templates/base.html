@@ -507,9 +507,11 @@
                 background: white;
             }
         }
+
         .autocomplete-wrapper {
             position: relative;
         }
+
         .autocomplete-list {
             display: none;
             position: fixed;
@@ -519,17 +521,20 @@
             max-height: 250px;
             overflow-y: auto;
             z-index: 9999;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
+
         .autocomplete-item {
             padding: 12px 16px;
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0;
             transition: background 0.15s;
         }
+
         .autocomplete-item:last-child {
             border-bottom: none;
         }
+
         .autocomplete-item:hover {
             background: #FFF3E0;
         }
@@ -567,7 +572,7 @@
         <div class="nav-section">
             <div class="nav-section-title">الشركاء</div>
             <a href="{% url 'partners:farmers' %}" class="nav-item">
-                <i class="bi bi-person-badge"></i> الرعويون
+                <i class="bi bi-person-badge"></i> الرعية
             </a>
             <a href="{% url 'partners:buyers' %}" class="nav-item">
                 <i class="bi bi-people"></i> المقاوته
@@ -706,9 +711,9 @@
 
         // PWA service worker registration
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/core/service-worker.js').then(function(reg) {
+            navigator.serviceWorker.register('/core/service-worker.js').then(function (reg) {
                 console.log('SW registered', reg.scope);
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.log('SW registration failed', err);
             });
         }
@@ -718,7 +723,7 @@
         if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
             document.getElementById('installSection').style.display = 'none';
         } else {
-            window.addEventListener('beforeinstallprompt', function(e) {
+            window.addEventListener('beforeinstallprompt', function (e) {
                 e.preventDefault();
                 deferredPrompt = e;
             });
@@ -727,7 +732,7 @@
         function installApp() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(function(choice) {
+                deferredPrompt.userChoice.then(function (choice) {
                     if (choice.outcome === 'accepted') {
                         document.getElementById('installSection').style.display = 'none';
                     }
