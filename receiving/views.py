@@ -126,7 +126,6 @@ def create_receiving(request):
         'products': Product.objects.filter(is_active=True),
         'units': Unit.objects.filter(is_active=True),
         'today': timezone.now().strftime('%Y-%m-%d'),
-        'farmers_json': json.dumps(list(Farmer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')), default=str),
     })
 
 

@@ -95,40 +95,54 @@
 </div>
 
 <script>
-    const farmersData = {{ farmers_json|safe }};
+    var farmersData = [];
+    {% for f in farmers %}
+    farmersData.push({id: {{ f.id }}, name: "{{ f.name|escapejs }}", code: "{{ f.code }}", current_balance: "{{ f.current_balance }}"});
+    {% endfor %}
 
-    const farmerSearch = document.getElementById('farmerSearch');
-    const farmerId = document.getElementById('farmerId');
-    const farmerDropdown = document.createElement('div');
+    var farmerSearch = document.getElementById('farmerSearch');
+    var farmerId = document.getElementById('farmerId');
+    var farmerDropdown = document.createElement('div');
     farmerDropdown.className = 'autocomplete-list';
     farmerDropdown.style.display = 'none';
     document.body.appendChild(farmerDropdown);
 
     farmerSearch.addEventListener('input', function() {
-        const q = this.value.toLowerCase().trim();
+        var q = this.value.toLowerCase().trim();
         farmerDropdown.innerHTML = '';
         if (q.length < 1) { farmerDropdown.style.display = 'none'; return; }
-        const matches = farmersData.filter(function(f) {
-            return f.name.toLowerCase().indexOf(q) !== -1 || f.code.toLowerCase().indexOf(q) !== -1;
-        });
+        var matches = [];
+        for (var i = 0; i < farmersData.length; i++) {
+            var f = farmersData[i];
+            if (f.name.toLowerCase().indexOf(q) !== -1 || f.code.toLowerCase().indexOf(q) !== -1) {
+                matches.push(f);
+            }
+        }
         if (matches.length === 0) { farmerDropdown.style.display = 'none'; return; }
-        const rect = farmerSearch.getBoundingClientRect();
+        var rect = farmerSearch.getBoundingClientRect();
         farmerDropdown.style.top = (rect.bottom + window.scrollY) + 'px';
         farmerDropdown.style.left = (rect.left + window.scrollX) + 'px';
         farmerDropdown.style.width = rect.width + 'px';
-        matches.forEach(function(f) {
-            const div = document.createElement('div');
+        for (var i = 0; i < matches.length; i++) {
+            var f = matches[i];
+            var div = document.createElement('div');
             div.className = 'autocomplete-item';
             div.innerHTML = '<strong>' + f.code + '</strong> - ' + f.name + ' <span style="color:#888;font-size:12px;">رصيد: ' + f.current_balance + '</span>';
-            div.addEventListener('mousedown', function(ev) {
-                ev.preventDefault();
-                farmerSearch.value = f.name;
-                farmerId.value = f.id;
-                farmerDropdown.style.display = 'none';
-            });
+            div.setAttribute('data-id', f.id);
+            div.setAttribute('data-name', f.name);
             farmerDropdown.appendChild(div);
-        });
+        }
         farmerDropdown.style.display = 'block';
+    });
+
+    farmerDropdown.addEventListener('mousedown', function(ev) {
+        var target = ev.target;
+        while (target && !target.getAttribute('data-id')) { target = target.parentElement; }
+        if (target) {
+            farmerSearch.value = target.getAttribute('data-name');
+            farmerId.value = target.getAttribute('data-id');
+            farmerDropdown.style.display = 'none';
+        }
     });
 
     farmerSearch.addEventListener('blur', function() {
