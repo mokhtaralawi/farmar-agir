@@ -185,6 +185,7 @@ def print_sale(request, pk):
         <p>الرصيد الحالي: {buyer.current_balance}</p>
     </div>
     <p style="text-align:center;font-size:8px;">شكراً لكم</p>
+    <p style="text-align:center;font-size:7px;color:#888;">تمت الطباعة بواسطة: {request.user.get_full_name() or request.user.username}</p>
     </body></html>"""
     return HttpResponse(html, content_type='text/html')
 

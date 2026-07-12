@@ -134,7 +134,10 @@ def print_collection(request, pk):
     <p>الموظف: {receipt.created_by}</p>
     <p>الرصيد الحالي: {receipt.buyer.current_balance}</p>
     </div>
-    <div class="total"><p>شكراً لكم</p></div>
+    <div class="total">
+        <p>شكراً لكم</p>
+        <p style="font-size:7px;color:#888;">تمت الطباعة بواسطة: {request.user.get_full_name() or request.user.username}</p>
+    </div>
     </body></html>"""
     return HttpResponse(html, content_type='text/html')
 
