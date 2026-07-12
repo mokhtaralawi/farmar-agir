@@ -11,12 +11,11 @@
         <div class="form-row">
             <div class="form-group">
                 <label>الرعوي *</label>
-                <select name="farmer" class="form-control" required>
-                    <option value="">اختر الرعوي</option>
-                    {% for farmer in farmers %}
-                    <option value="{{ farmer.id }}">{{ farmer.code }} - {{ farmer.name }}</option>
-                    {% endfor %}
-                </select>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="farmerSearch" class="form-control" placeholder="اكتب اسم الرعوي..." autocomplete="off">
+                    <input type="hidden" name="farmer" id="farmerId" required>
+                    <div class="autocomplete-list" id="farmerList"></div>
+                </div>
             </div>
             <div class="form-group">
                 <label>المخزن *</label>
@@ -99,6 +98,36 @@
 </div>
 
 <script>
+    const farmersData = {{ farmers_json|safe }};
+
+    const farmerSearch = document.getElementById('farmerSearch');
+    const farmerId = document.getElementById('farmerId');
+    const farmerList = document.getElementById('farmerList');
+
+    farmerSearch.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        farmerList.innerHTML = '';
+        if (q.length < 1) { farmerList.style.display = 'none'; return; }
+        const matches = farmersData.filter(f => f.name.toLowerCase().includes(q) || f.code.toLowerCase().includes(q));
+        if (matches.length === 0) { farmerList.style.display = 'none'; return; }
+        matches.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.innerHTML = `<strong>${f.code}</strong> - ${f.name} <span style="color:#888;font-size:12px;">رصيد: ${f.current_balance}</span>`;
+            div.addEventListener('click', () => {
+                farmerSearch.value = f.name;
+                farmerId.value = f.id;
+                farmerList.style.display = 'none';
+            });
+            farmerList.appendChild(div);
+        });
+        farmerList.style.display = 'block';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.autocomplete-wrapper')) farmerList.style.display = 'none';
+    });
+
     function addRow() {
         const table = document.getElementById('itemsTable');
         const lastRow = table.querySelector('.item-row:last-child');

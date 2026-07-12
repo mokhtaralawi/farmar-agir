@@ -120,6 +120,8 @@ def create_receiving(request):
         'warehouses': Warehouse.objects.filter(is_active=True),
         'products': Product.objects.filter(is_active=True),
         'units': Unit.objects.filter(is_active=True),
+        'today': timezone.now().strftime('%Y-%m-%d'),
+        'farmers_json': list(Farmer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')),
     })
 
 

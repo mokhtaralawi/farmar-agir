@@ -11,13 +11,11 @@
         <div class="form-row">
             <div class="form-group">
                 <label>الرعوي *</label>
-                <select name="buyer" class="form-control" required>
-                    <option value="">اختر الرعوي</option>
-                    {% for buyer in buyers %}
-                    <option value="{{ buyer.id }}">{{ buyer.code }} - {{ buyer.name }} (رصيد: {{ buyer.current_balance
-                        }})</option>
-                    {% endfor %}
-                </select>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="buyerSearch" class="form-control" placeholder="اكتب اسم الرعوي..." autocomplete="off">
+                    <input type="hidden" name="buyer" id="buyerId" required>
+                    <div class="autocomplete-list" id="buyerList"></div>
+                </div>
             </div>
             <div class="form-group">
                 <label>المخزن *</label>
@@ -102,6 +100,36 @@
 </div>
 
 <script>
+    const buyersData = {{ buyers_json|safe }};
+
+    const buyerSearch = document.getElementById('buyerSearch');
+    const buyerId = document.getElementById('buyerId');
+    const buyerList = document.getElementById('buyerList');
+
+    buyerSearch.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        buyerList.innerHTML = '';
+        if (q.length < 1) { buyerList.style.display = 'none'; return; }
+        const matches = buyersData.filter(b => b.name.toLowerCase().includes(q) || b.code.toLowerCase().includes(q));
+        if (matches.length === 0) { buyerList.style.display = 'none'; return; }
+        matches.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.innerHTML = `<strong>${b.code}</strong> - ${b.name} <span style="color:#888;font-size:12px;">رصيد: ${b.current_balance}</span>`;
+            div.addEventListener('click', () => {
+                buyerSearch.value = b.name;
+                buyerId.value = b.id;
+                buyerList.style.display = 'none';
+            });
+            buyerList.appendChild(div);
+        });
+        buyerList.style.display = 'block';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.autocomplete-wrapper')) buyerList.style.display = 'none';
+    });
+
     function addRow() {
         const table = document.getElementById('itemsTable');
         const lastRow = table.querySelector('.item-row:last-child');

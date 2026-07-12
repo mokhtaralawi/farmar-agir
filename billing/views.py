@@ -140,6 +140,8 @@ def create_sale(request):
         'warehouses': Warehouse.objects.filter(is_active=True),
         'products': Product.objects.filter(is_active=True),
         'units': Unit.objects.filter(is_active=True),
+        'today': timezone.now().strftime('%Y-%m-%d'),
+        'buyers_json': list(Buyer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')),
     })
 
 
