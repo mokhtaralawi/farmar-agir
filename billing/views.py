@@ -167,18 +167,31 @@ def edit_sale(request, pk):
     """تعديل فاتورة بيع"""
     invoice = get_object_or_404(SalesInvoice, id=pk, is_deleted=False)
     old_net = invoice.net_amount
-    old_discount = invoice.discount
 
     if request.method == 'POST':
-        discount = Decimal(request.POST.get('discount', 0) or 0)
         notes = request.POST.get('notes', '')
+        invoice_discount = Decimal(request.POST.get('discount', 0) or 0)
 
-        total_after_item_discounts = invoice.total_amount - invoice.total_discount
-        if discount > total_after_item_discounts:
-            discount = total_after_item_discounts
+        new_total_discount = Decimal('0')
+        for item in invoice.items.all():
+            key = f'item_discount_{item.id}'
+            item_disc = Decimal(request.POST.get(key, 0) or 0)
+            gross = item.quantity * item.unit_price
+            if item_disc > gross:
+                item_disc = gross
+            item.discount = item_disc
+            item.total = gross - item_disc
+            item.save()
+            new_total_discount += item_disc
 
-        new_net = invoice.total_amount - invoice.total_discount - discount
-        invoice.discount = discount
+        new_total = sum(item.quantity * item.unit_price for item in invoice.items.all())
+        if invoice_discount > (new_total - new_total_discount):
+            invoice_discount = new_total - new_total_discount
+
+        new_net = new_total - new_total_discount - invoice_discount
+        invoice.total_amount = new_total
+        invoice.total_discount = new_total_discount
+        invoice.discount = invoice_discount
         invoice.net_amount = new_net
         invoice.notes = notes
         invoice.save()
@@ -194,8 +207,14 @@ def edit_sale(request, pk):
         log_activity(request, 'SALES_EDIT', f'تعديل فاتورة بيع {invoice.invoice_number} للرعوي {buyer.name}', 'SalesInvoice', invoice.id)
         return redirect('billing:list')
 
+    items_with_gross = []
+    for item in invoice.items.all():
+        item.gross_total = item.quantity * item.unit_price
+        items_with_gross.append(item)
+
     return render(request, 'billing/edit.html', {
         'invoice': invoice,
+        'items': items_with_gross,
     })
 
 

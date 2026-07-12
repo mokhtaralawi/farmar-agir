@@ -34,23 +34,27 @@
 
         <h3 style="margin-bottom:15px;"><i class="bi bi-box-seam"></i> الأصناف</h3>
 
-        <table class="data-table">
+        <table class="data-table" id="itemsTable">
             <tr>
                 <th>الصنف</th>
-                <th>الوحدة</th>
                 <th>الكمية</th>
                 <th>سعر الوحدة</th>
+                <th>الإجمالي (بدون خصم)</th>
                 <th>خصم الصنف</th>
-                <th>الإجمالي</th>
+                <th>الصافي</th>
             </tr>
-            {% for item in invoice.items.all %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{% if item.unit %}{{ item.unit.name }}{% else %}-{% endif %}</td>
+            {% for item in items %}
+            <tr data-item-id="{{ item.id }}">
+                <td><strong>{{ item.product.name }}</strong></td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.unit_price }}</td>
-                <td>{{ item.discount }}</td>
-                <td><strong>{{ item.total }}</strong></td>
+                <td class="item-gross">{{ item.gross_total }}</td>
+                <td>
+                    <input type="number" name="item_discount_{{ item.id }}" class="form-control item-discount"
+                           step="0.01" min="0" max="{{ item.gross_total }}" value="{{ item.discount }}"
+                           data-gross="{{ item.gross_total }}" style="width:100px;text-align:center;">
+                </td>
+                <td class="item-net"><strong>{{ item.total }}</strong></td>
             </tr>
             {% endfor %}
         </table>
@@ -59,7 +63,7 @@
 
         <div style="text-align:center;font-size:18px;color:#2E7D32;">
             <p>الإجمالي: <strong>{{ invoice.total_amount }}</strong></p>
-            <p>خصم الأصناف: <strong>{{ invoice.total_discount }}</strong></p>
+            <p>خصم الأصناف: <strong id="totalItemDiscount">{{ invoice.total_discount }}</strong></p>
         </div>
 
         <div style="margin-top:15px;display:flex;gap:15px;justify-content:center;align-items:center;">
@@ -67,7 +71,7 @@
                 <label style="font-weight:700;">خصم الفاتورة</label>
                 <input type="number" name="discount" id="discountInput" class="form-control" step="0.01" min="0" value="{{ invoice.discount }}" style="width:150px;display:inline-block;text-align:center;">
             </div>
-            <div style="font-size:18px;font-weight:700;color:#1565C0;">
+            <div style="font-size:20px;font-weight:700;color:#1565C0;">
                 الصافي: <span id="netTotal">{{ invoice.net_amount }}</span>
             </div>
         </div>
@@ -85,19 +89,30 @@
 
 <script>
     var totalAmount = {{ invoice.total_amount }};
-    var totalItemDiscount = {{ invoice.total_discount }};
-    var baseNet = totalAmount - totalItemDiscount;
-    var discountInput = document.getElementById('discountInput');
-    var netTotal = document.getElementById('netTotal');
 
-    function updateNet() {
-        var discount = parseFloat(discountInput.value) || 0;
-        if (discount > baseNet) discount = baseNet;
-        netTotal.textContent = (baseNet - discount).toFixed(2);
+    function recalcAll() {
+        var totalItemDisc = 0;
+        document.querySelectorAll('.item-discount').forEach(function(el) {
+            var gross = parseFloat(el.getAttribute('data-gross')) || 0;
+            var disc = parseFloat(el.value) || 0;
+            if (disc > gross) { disc = gross; el.value = disc; }
+            var net = gross - disc;
+            el.closest('tr').querySelector('.item-net').innerHTML = '<strong>' + net.toFixed(2) + '</strong>';
+            totalItemDisc += disc;
+        });
+        document.getElementById('totalItemDiscount').textContent = totalItemDisc.toFixed(2);
+
+        var invoiceDiscount = parseFloat(document.getElementById('discountInput').value) || 0;
+        var baseNet = totalAmount - totalItemDisc;
+        if (invoiceDiscount > baseNet) invoiceDiscount = baseNet;
+        var finalNet = baseNet - invoiceDiscount;
+        document.getElementById('netTotal').textContent = finalNet.toFixed(2);
     }
 
-    discountInput.addEventListener('input', updateNet);
-    updateNet();
+    document.querySelectorAll('.item-discount').forEach(function(el) {
+        el.addEventListener('input', recalcAll);
+    });
+    document.getElementById('discountInput').addEventListener('input', recalcAll);
 </script>
 
 {% endblock %}
