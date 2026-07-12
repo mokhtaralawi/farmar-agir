@@ -9,7 +9,6 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
 from decimal import Decimal
-import json
 from .models import SalesInvoice, SalesItem, SalesReturn, SalesReturnItem
 from partners.models import Buyer
 from core.models import Warehouse, SystemSettings
