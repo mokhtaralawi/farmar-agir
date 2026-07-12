@@ -102,6 +102,8 @@
     buyersData.push({id: {{ b.id }}, name: "{{ b.name|escapejs }}", code: "{{ b.code }}", current_balance: "{{ b.current_balance }}"});
     {% endfor %}
 
+    var stockData = {{ stock_data|safe }};
+
     var buyerSearch = document.getElementById('buyerSearch');
     var buyerId = document.getElementById('buyerId');
     var buyerDropdown = document.createElement('div');
@@ -170,6 +172,43 @@
         }
     }
 
+    function getWarehouseId() {
+        var sel = document.querySelector('select[name="warehouse"]');
+        return sel ? sel.value : '';
+    }
+
+    function getStock(productId, warehouseId) {
+        var key = productId + '_' + warehouseId;
+        return stockData[key] || 0;
+    }
+
+    function checkStock(row) {
+        var productSelect = row.querySelector('.product-select');
+        var qty = row.querySelector('.qty');
+        var stockInfo = row.querySelector('.stock-info');
+        if (!productSelect || !productSelect.value || !qty) return;
+        var wh = getWarehouseId();
+        if (!wh) return;
+        var avail = getStock(productSelect.value, wh);
+        if (stockInfo) stockInfo.remove();
+        var info = document.createElement('span');
+        info.className = 'stock-info';
+        info.style.cssText = 'display:block;font-size:11px;color:#888;margin-top:2px;';
+        var entered = parseFloat(qty.value) || 0;
+        if (entered > avail && avail > 0) {
+            info.style.color = '#C62828';
+            info.style.fontWeight = 'bold';
+            info.textContent = 'المتوفر: ' + avail + ' - الكمية غير كافية!';
+        } else if (avail > 0) {
+            info.style.color = '#2E7D32';
+            info.textContent = 'المتوفر: ' + avail;
+        } else {
+            info.style.color = '#C62828';
+            info.textContent = 'غير متوفر في المخزن';
+        }
+        qty.parentElement.appendChild(info);
+    }
+
     function attachListeners(row) {
         const qty = row.querySelector('.qty');
         const price = row.querySelector('.price');
@@ -182,11 +221,17 @@
             const d = parseFloat(discount.value) || 0;
             total.textContent = Math.max(0, q * p - d).toFixed(2);
             updateTotals();
+            checkStock(row);
         }
 
         qty.addEventListener('input', calc);
         price.addEventListener('input', calc);
         discount.addEventListener('input', calc);
+
+        var productSelect = row.querySelector('.product-select');
+        if (productSelect) {
+            productSelect.addEventListener('change', function() { checkStock(row); });
+        }
     }
 
     function updateTotals() {
@@ -200,17 +245,33 @@
     document.querySelectorAll('.item-row').forEach(attachListeners);
 
     document.getElementById('salesForm').addEventListener('submit', function (e) {
+        var wh = getWarehouseId();
+        var rows = document.querySelectorAll('.item-row');
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var productSelect = row.querySelector('.product-select');
+            var qty = row.querySelector('.qty');
+            if (productSelect && productSelect.value && qty && qty.value) {
+                var avail = getStock(productSelect.value, wh);
+                if (parseFloat(qty.value) > avail) {
+                    e.preventDefault();
+                    alert('الكمية المطلوبة للصنف أكبر من المتوفر في المخزن!');
+                    qty.focus();
+                    return;
+                }
+            }
+        }
+
         this.querySelectorAll('[name="items[]"]').forEach(el => el.removeAttribute('name'));
-        const rows = document.querySelectorAll('.item-row');
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const selects = row.querySelectorAll('select');
-            const inputsRow = row.querySelectorAll('input');
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var selects = row.querySelectorAll('select');
+            var inputsRow = row.querySelectorAll('input:not(.stock-info)');
             if (selects.length >= 2 && inputsRow.length >= 3) {
-                const hidden = document.createElement('input');
+                var hidden = document.createElement('input');
                 hidden.type = 'hidden';
                 hidden.name = 'items[]';
-                hidden.value = `${selects[0].value}|${selects[1].value}|${inputsRow[0].value}|${inputsRow[1].value}|${inputsRow[2].value}`;
+                hidden.value = selects[0].value + '|' + selects[1].value + '|' + inputsRow[0].value + '|' + inputsRow[1].value + '|' + inputsRow[2].value;
                 this.appendChild(hidden);
             }
         }

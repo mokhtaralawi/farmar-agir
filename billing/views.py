@@ -15,7 +15,16 @@ from core.models import Warehouse, SystemSettings
 from cashbox.models import CashBox
 from products.models import Product, Unit
 from inventory.services import InventoryService
+from inventory.models import InventoryItem
 from accounting.services import AccountingService
+
+
+def get_stock_data():
+    """Get available stock per product per warehouse"""
+    stock = {}
+    for item in InventoryItem.objects.select_related('product', 'warehouse').all():
+        stock[f"{item.product_id}_{item.warehouse_id}"] = float(item.available_qty)
+    return stock
 
 
 @login_required
@@ -145,6 +154,7 @@ def create_sale(request):
         'products': Product.objects.filter(is_active=True),
         'units': Unit.objects.filter(is_active=True),
         'today': timezone.now().strftime('%Y-%m-%d'),
+        'stock_data': get_stock_data(),
     })
 
 
