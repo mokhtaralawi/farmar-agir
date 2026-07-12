@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}المخازن - نظام المجابرة{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <h2><i class="bi bi-building"></i> المخازن</h2>
+    <a href="{% url 'core:warehouse_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> مخزن جديد
+    </a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>الاسم</th>
+            <th>الاسم بالإنجليزية</th>
+            <th>الفرع</th>
+            <th>الافتراضي</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+        </tr>
+        {% for wh in warehouses %}
+        <tr>
+            <td><strong>{{ wh.name }}</strong></td>
+            <td>{{ wh.name_en|default:"-" }}</td>
+            <td>{{ wh.branch.name|default:"-" }}</td>
+            <td>
+                {% if wh.is_default %}
+                <span class="badge badge-success">افتراضي</span>
+                {% else %}-{% endif %}
+            </td>
+            <td>
+                {% if wh.is_active %}
+                <span class="badge badge-success">نشط</span>
+                {% else %}
+                <span class="badge badge-danger">معطّل</span>
+                {% endif %}
+            </td>
+            <td style="display:flex;gap:5px;">
+                <a href="{% url 'core:warehouse_edit' wh.id %}" class="btn btn-sm btn-info">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'core:warehouse_toggle' wh.id %}" class="btn btn-sm {% if wh.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                    <i class="bi bi-{% if wh.is_active %}pause{% else %}play{% endif %}-circle"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty-state"><i class="bi bi-inbox"></i>
+                <p>لا توجد مخازن</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

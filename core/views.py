@@ -4,10 +4,10 @@ Core Views - Views for core app
 
 import json
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import SystemSettings
+from .models import SystemSettings, Warehouse, Branch
 
 
 def manifest_view(request):
@@ -82,3 +82,76 @@ def settings_view(request):
     
     settings = SystemSettings.get_settings()
     return render(request, 'settings.html', {'settings': settings})
+
+
+@login_required
+def warehouses_list(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, 'ليس لديك صلاحية الوصول')
+        return redirect('reports:dashboard')
+    warehouses = Warehouse.objects.select_related('branch').order_by('-created_at')
+    return render(request, 'core/warehouses.html', {'warehouses': warehouses})
+
+
+@login_required
+def warehouse_create(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, 'ليس لديك صلاحية الوصول')
+        return redirect('reports:dashboard')
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if not name:
+            messages.error(request, 'اسم المخزن مطلوب')
+        else:
+            Warehouse.objects.create(
+                name=name,
+                name_en=request.POST.get('name_en', '').strip(),
+                branch_id=request.POST.get('branch') or None,
+                is_default=request.POST.get('is_default') == 'on',
+                is_active=request.POST.get('is_active') == 'on',
+            )
+            messages.success(request, f'تم إنشاء مخزن "{name}" بنجاح')
+            return redirect('core:warehouses')
+    return render(request, 'core/warehouse_form.html', {
+        'branches': Branch.objects.filter(is_active=True),
+        'mode': 'create',
+    })
+
+
+@login_required
+def warehouse_edit(request, pk):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, 'ليس لديك صلاحية الوصول')
+        return redirect('reports:dashboard')
+    warehouse = get_object_or_404(Warehouse, id=pk)
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if not name:
+            messages.error(request, 'اسم المخزن مطلوب')
+        else:
+            warehouse.name = name
+            warehouse.name_en = request.POST.get('name_en', '').strip()
+            warehouse.branch_id = request.POST.get('branch') or None
+            warehouse.is_default = request.POST.get('is_default') == 'on'
+            warehouse.is_active = request.POST.get('is_active') == 'on'
+            warehouse.save()
+            messages.success(request, f'تم تحديث مخزن "{name}" بنجاح')
+            return redirect('core:warehouses')
+    return render(request, 'core/warehouse_form.html', {
+        'warehouse': warehouse,
+        'branches': Branch.objects.filter(is_active=True),
+        'mode': 'edit',
+    })
+
+
+@login_required
+def warehouse_toggle(request, pk):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, 'ليس لديك صلاحية الوصول')
+        return redirect('reports:dashboard')
+    warehouse = get_object_or_404(Warehouse, id=pk)
+    warehouse.is_active = not warehouse.is_active
+    warehouse.save()
+    status = 'تفعيل' if warehouse.is_active else 'تعطيل'
+    messages.success(request, f'تم {status} مخزن "{warehouse.name}"')
+    return redirect('core:warehouses')
