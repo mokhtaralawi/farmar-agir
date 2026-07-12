@@ -17,11 +17,17 @@ def products_list(request):
 @login_required
 def create_product(request):
     if request.method == 'POST':
+        barcode = request.POST.get('barcode', '').strip()
+        if not barcode:
+            import uuid
+            barcode = uuid.uuid4().hex[:12].upper()
+
         Product.objects.create(
             code=Product.generate_code(),
             name=request.POST.get('name'),
             category_id=request.POST.get('category'),
             unit_id=request.POST.get('unit'),
+            barcode=barcode,
             status='ACTIVE',
         )
         messages.success(request, 'تم إنشاء الصنف بنجاح')
