@@ -49,6 +49,9 @@ def create_sale(request):
     if request.method == 'POST':
         buyer_id = request.POST.get('buyer')
         warehouse_id = request.POST.get('warehouse')
+        if not buyer_id or not warehouse_id:
+            messages.error(request, 'يجب اختيار الرعوي والمخزن')
+            return redirect('billing:create')
         date = request.POST.get('date')
         notes = request.POST.get('notes', '')
         items = request.POST.getlist('items[]')
@@ -60,7 +63,11 @@ def create_sale(request):
             return redirect('billing:create')
 
         # Check credit limit
-        total = sum(Decimal(parts[2]) * Decimal(parts[3]) - Decimal(parts[4] or '0') for parts in [i.split('|') for i in items])
+        total = Decimal('0')
+        for item_data in items:
+            parts = item_data.split('|')
+            if len(parts) >= 4:
+                total += Decimal(parts[2]) * Decimal(parts[3]) - Decimal(parts[4] if len(parts) > 4 and parts[4] else '0')
         if buyer.credit_limit > 0 and (buyer.current_balance + total) > buyer.credit_limit:
             messages.error(request, f'تجاوز الحد الائتماني ({buyer.credit_limit})')
             return redirect('billing:create')
@@ -79,12 +86,14 @@ def create_sale(request):
         invoice_discount = Decimal('0')
         for item_data in items:
             parts = item_data.split('|')
+            if len(parts) < 4 or not parts[0].strip():
+                continue
             product = Product.objects.get(id=parts[0])
             unit_id = parts[1].strip() if len(parts) > 1 else ''
             unit = Unit.objects.get(id=unit_id) if unit_id else None
             quantity = Decimal(parts[2])
             price = Decimal(parts[3])
-            discount = Decimal(parts[4] or '0')
+            discount = Decimal(parts[4] or '0') if len(parts) > 4 else Decimal('0')
             item_total = (quantity * price) - discount
 
             # Check inventory

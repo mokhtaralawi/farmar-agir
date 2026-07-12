@@ -50,6 +50,9 @@ def create_receiving(request):
     if request.method == 'POST':
         farmer_id = request.POST.get('farmer')
         warehouse_id = request.POST.get('warehouse')
+        if not farmer_id or not warehouse_id:
+            messages.error(request, 'يجب اختيار المزرع والمخزن')
+            return redirect('receiving:create')
         date = request.POST.get('date')
         notes = request.POST.get('notes', '')
         items = request.POST.getlist('items[]')
@@ -73,6 +76,8 @@ def create_receiving(request):
         total = Decimal('0')
         for item_data in items:
             parts = item_data.split('|')
+            if len(parts) < 4 or not parts[0].strip():
+                continue
             product = Product.objects.get(id=parts[0])
             unit_id = parts[1].strip() if len(parts) > 1 else ''
             unit = Unit.objects.get(id=unit_id) if unit_id else None

@@ -146,18 +146,18 @@
 
     // Form submit - encode items
     document.getElementById('receivingForm').addEventListener('submit', function (e) {
+        this.querySelectorAll('[name="items[]"]').forEach(el => el.removeAttribute('name'));
         const rows = document.querySelectorAll('.item-row');
-        const inputs = this.querySelectorAll('[name="items[]"]');
-        // Convert select values to pipe format
-        let idx = 0;
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             const selects = row.querySelectorAll('select');
             const inputsRow = row.querySelectorAll('input');
             if (selects.length >= 2 && inputsRow.length >= 2) {
-                const val = `${selects[0].value}|${selects[1].value}|${inputsRow[0].value}|${inputsRow[1].value}`;
-                inputs[idx].value = val;
-                idx++;
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'items[]';
+                hidden.value = `${selects[0].value}|${selects[1].value}|${inputsRow[0].value}|${inputsRow[1].value}`;
+                this.appendChild(hidden);
             }
         }
     });
