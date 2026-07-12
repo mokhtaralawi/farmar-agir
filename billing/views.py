@@ -154,6 +154,7 @@ def print_sale(request, pk):
     """طباعة فاتورة البيع"""
     invoice = get_object_or_404(SalesInvoice, id=pk, is_deleted=False)
     settings = SystemSettings.get_settings()
+    buyer = invoice.buyer
     html = f"""<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8">
     <style>@media print {{ body {{ width: 58mm; font-size: 10px; }} }}
     body {{ font-family: sans-serif; margin: 0; padding: 5px; }}
@@ -161,14 +162,19 @@ def print_sale(request, pk):
     table {{ width: 100%; border-collapse: collapse; font-size: 9px; }}
     th, td {{ border: 1px solid #ccc; padding: 2px; text-align: center; }}
     .total {{ border-top: 1px dashed #000; padding-top: 5px; font-weight: bold; text-align: center; }}
+    .balance {{ border-top: 1px dashed #000; padding-top: 5px; text-align: center; font-size: 9px; }}
     </style></head><body>
     <div class="header"><h3>{settings.company_name}</h3><p>فاتورة بيع</p></div>
     <p style="text-align:center;font-size:9px;">رقم: {invoice.invoice_number}</p>
-    <p style="text-align:center;font-size:9px;">الرعوي: {invoice.buyer.name}</p>
+    <p style="text-align:center;font-size:9px;">الرعوي: {buyer.name}</p>
     <p style="text-align:center;font-size:9px;">التاريخ: {invoice.date}</p>
     <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الإجمالي</th></tr></thead>
     <tbody>{''.join(f'<tr><td>{i.product.name}</td><td>{i.quantity}</td><td>{i.unit_price}</td><td>{i.discount}</td><td>{i.total}</td></tr>' for i in invoice.items.all())}</tbody></table>
     <div class="total"><p>الإجمالي: {invoice.total_amount}</p><p>الخصم: {invoice.total_discount}</p><p>الصافي: {invoice.net_amount}</p></div>
+    <div class="balance">
+        <p>المبلغ عليه: {invoice.net_amount}</p>
+        <p>الرصيد الحالي: {buyer.current_balance}</p>
+    </div>
     <p style="text-align:center;font-size:8px;">شكراً لكم</p>
     </body></html>"""
     return HttpResponse(html, content_type='text/html')
