@@ -49,19 +49,23 @@ def create_receiving(request):
     """إنشاء فاتورة استلام"""
     if request.method == 'POST':
         farmer_id = request.POST.get('farmer')
+        farmer_name = request.POST.get('farmer_name', '').strip()
         warehouse_id = request.POST.get('warehouse')
-        if not farmer_id or not warehouse_id:
+        try:
+            if farmer_id:
+                farmer = Farmer.objects.get(id=farmer_id)
+            elif farmer_name:
+                farmer = Farmer.objects.get(name=farmer_name)
+            else:
+                raise ValueError
+            warehouse = Warehouse.objects.get(id=warehouse_id)
+        except:
             messages.error(request, 'يجب اختيار المزرع والمخزن')
             return redirect('receiving:create')
+
         date = request.POST.get('date')
         notes = request.POST.get('notes', '')
         items = request.POST.getlist('items[]')
-        try:
-            farmer = Farmer.objects.get(id=farmer_id)
-            warehouse = Warehouse.objects.get(id=warehouse_id)
-        except:
-            messages.error(request, 'بيانات غير صحيحة')
-            return redirect('receiving:create')
 
         last_invoice = ReceivingInvoice.objects.order_by('-id').first()
         num = (int(last_invoice.invoice_number.split('-')[-1]) + 1) if last_invoice else 1

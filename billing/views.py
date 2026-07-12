@@ -48,19 +48,23 @@ def create_sale(request):
     """إنشاء فاتورة بيع"""
     if request.method == 'POST':
         buyer_id = request.POST.get('buyer')
+        buyer_name = request.POST.get('buyer_name', '').strip()
         warehouse_id = request.POST.get('warehouse')
-        if not buyer_id or not warehouse_id:
+        try:
+            if buyer_id:
+                buyer = Buyer.objects.get(id=buyer_id)
+            elif buyer_name:
+                buyer = Buyer.objects.get(name=buyer_name)
+            else:
+                raise ValueError
+            warehouse = Warehouse.objects.get(id=warehouse_id)
+        except:
             messages.error(request, 'يجب اختيار الرعوي والمخزن')
             return redirect('billing:create')
+
         date = request.POST.get('date')
         notes = request.POST.get('notes', '')
         items = request.POST.getlist('items[]')
-        try:
-            buyer = Buyer.objects.get(id=buyer_id)
-            warehouse = Warehouse.objects.get(id=warehouse_id)
-        except:
-            messages.error(request, 'بيانات غير صحيحة')
-            return redirect('billing:create')
 
         # Check credit limit
         total = Decimal('0')
