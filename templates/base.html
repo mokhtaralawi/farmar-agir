@@ -512,16 +512,13 @@
         }
         .autocomplete-list {
             display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
+            position: fixed;
             background: white;
             border: 1px solid #ddd;
             border-radius: 6px;
             max-height: 250px;
             overflow-y: auto;
-            z-index: 1000;
+            z-index: 9999;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .autocomplete-item {
