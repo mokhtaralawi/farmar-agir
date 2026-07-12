@@ -24,6 +24,8 @@ class ReceivingInvoice(models.Model):
     date = models.DateField(_('التاريخ'))
     time = models.TimeField(_('الوقت'), auto_now_add=True)
     total_amount = models.DecimalField(_('الإجمالي'), max_digits=15, decimal_places=2, default=0)
+    discount = models.DecimalField(_('الخصم'), max_digits=15, decimal_places=2, default=0)
+    net_amount = models.DecimalField(_('الصافي'), max_digits=15, decimal_places=2, default=0)
     notes = models.TextField(_('ملاحظات'), blank=True)
     created_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True,
                                     related_name='receiving_invoices', verbose_name=_('أنشأه'))

@@ -56,6 +56,8 @@
             <th>الرعوي</th>
             <th>التاريخ</th>
             <th>الإجمالي</th>
+            <th>الخصم</th>
+            <th>الصافي</th>
             <th>الحالة</th>
             <th>إجراءات</th>
         </tr>
@@ -65,6 +67,8 @@
             <td>{{ invoice.farmer.name }}</td>
             <td>{{ invoice.date }}</td>
             <td>{{ invoice.total_amount }}</td>
+            <td>{% if invoice.discount %}{{ invoice.discount }}{% else %}-{% endif %}</td>
+            <td>{% if invoice.net_amount %}{{ invoice.net_amount }}{% else %}{{ invoice.total_amount }}{% endif %}</td>
             <td>
                 {% if invoice.status == 'APPROVED' %}
                 <span class="badge badge-success">معتمد</span>
@@ -87,7 +91,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6" class="empty-state">
+            <td colspan="8" class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <p>لا توجد فواتير استلام</p>
             </td>

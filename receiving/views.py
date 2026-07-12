@@ -67,6 +67,8 @@ def create_receiving(request):
         notes = request.POST.get('notes', '')
         items = request.POST.getlist('items[]')
 
+        discount = Decimal(request.POST.get('discount', 0) or 0)
+
         last_invoice = ReceivingInvoice.objects.order_by('-id').first()
         num = (int(last_invoice.invoice_number.split('-')[-1]) + 1) if last_invoice else 1
         invoice_number = f"RCV-{timezone.now().strftime('%Y')}-{num:06d}"
@@ -94,12 +96,18 @@ def create_receiving(request):
             )
             total += item_total
 
+        if discount > total:
+            discount = total
+
+        net = total - discount
         invoice.total_amount = total
+        invoice.discount = discount
+        invoice.net_amount = net
         invoice.save()
 
-        # Update farmer balance
-        farmer.current_balance += total
-        farmer.total_receivables += total
+        # Update farmer balance with net amount
+        farmer.current_balance += net
+        farmer.total_receivables += net
         farmer.save()
 
         # Update inventory
@@ -143,6 +151,8 @@ def print_receiving(request, pk):
     invoice = get_object_or_404(ReceivingInvoice, id=pk, is_deleted=False)
     settings = SystemSettings.get_settings()
     farmer = invoice.farmer
+    discount_line = f'<p style="color:#c62828;">الخصم: -{invoice.discount}</p>' if invoice.discount else ''
+    net = invoice.net_amount if invoice.net_amount else invoice.total_amount
     html = f"""<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8">
     <style>@media print {{ body {{ width: 58mm; font-size: 10px; }} }}
     body {{ font-family: sans-serif; margin: 0; padding: 5px; }}
@@ -158,9 +168,13 @@ def print_receiving(request, pk):
     <p style="text-align:center;font-size:9px;">التاريخ: {invoice.date}</p>
     <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead>
     <tbody>{''.join(f'<tr><td>{i.product.name}</td><td>{i.quantity}</td><td>{i.unit_price}</td><td>{i.total}</td></tr>' for i in invoice.items.all())}</tbody></table>
-    <div class="total"><p>الإجمالي: {invoice.total_amount}</p></div>
+    <div class="total">
+        <p>الإجمالي: {invoice.total_amount}</p>
+        {discount_line}
+        <p style="font-size:14px;">الصافي: {net}</p>
+    </div>
     <div class="balance">
-        <p>المبلغ لأجله: {invoice.total_amount}</p>
+        <p>المبلغ لأجله: {net}</p>
         <p>الرصيد الحالي: {farmer.current_balance}</p>
     </div>
     <p style="text-align:center;font-size:8px;">شكراً لكم</p>
