@@ -137,6 +137,43 @@ def create_receiving(request):
 
 
 @login_required
+@transaction.atomic
+def edit_receiving(request, pk):
+    """تعديل فاتورة استلام"""
+    invoice = get_object_or_404(ReceivingInvoice, id=pk, is_deleted=False)
+    old_net = invoice.net_amount or invoice.total_amount
+
+    if request.method == 'POST':
+        discount = Decimal(request.POST.get('discount', 0) or 0)
+        notes = request.POST.get('notes', '')
+
+        total = sum(item.total for item in invoice.items.all())
+        if discount > total:
+            discount = total
+        net = total - discount
+
+        invoice.discount = discount
+        invoice.net_amount = net
+        invoice.notes = notes
+        invoice.save()
+
+        # Update farmer balance: reverse old, apply new
+        farmer = invoice.farmer
+        farmer.current_balance = farmer.current_balance - old_net + net
+        farmer.total_receivables = farmer.total_receivables - old_net + net
+        farmer.save()
+
+        messages.success(request, f'تم تعديل فاتورة {invoice.invoice_number} بنجاح')
+        return redirect('receiving:detail', invoice.id)
+
+    return render(request, 'receiving/edit.html', {
+        'invoice': invoice,
+        'products': Product.objects.filter(is_active=True),
+        'units': Unit.objects.filter(is_active=True),
+    })
+
+
+@login_required
 def receiving_detail(request, pk):
     """تفاصيل فاتورة الاستلام"""
     invoice = get_object_or_404(ReceivingInvoice, id=pk, is_deleted=False)

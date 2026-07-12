@@ -19,6 +19,8 @@ class CollectionReceipt(models.Model):
     buyer = models.ForeignKey('partners.Buyer', on_delete=models.CASCADE, verbose_name=_('الرعوي'))
     payment_method = models.CharField(_('طريقة الدفع'), max_length=20, choices=PAYMENT_METHODS, default='CASH')
     amount = models.DecimalField(_('المبلغ'), max_digits=15, decimal_places=2)
+    discount = models.DecimalField(_('الخصم'), max_digits=15, decimal_places=2, default=0)
+    net_amount = models.DecimalField(_('الصافي'), max_digits=15, decimal_places=2, default=0)
     bank = models.ForeignKey('core.Bank', on_delete=models.SET_NULL, null=True, blank=True,
                               verbose_name=_('الحساب البنكي'))
     notes = models.TextField(_('ملاحظات'), blank=True)

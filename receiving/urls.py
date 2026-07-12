@@ -8,4 +8,5 @@ urlpatterns = [
     path('create/', views.create_receiving, name='create'),
     path('print/<int:pk>/', views.print_receiving, name='print'),
     path('detail/<int:pk>/', views.receiving_detail, name='detail'),
+    path('edit/<int:pk>/', views.edit_receiving, name='edit'),
 ]

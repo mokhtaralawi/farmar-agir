@@ -47,6 +47,7 @@ def create_collection(request):
         buyer_id = request.POST.get('buyer')
         payment_method = request.POST.get('payment_method', 'CASH')
         amount = Decimal(request.POST.get('amount', 0))
+        discount = Decimal(request.POST.get('discount', 0) or 0)
         notes = request.POST.get('notes', '')
         try:
             buyer = Buyer.objects.get(id=buyer_id)
@@ -58,8 +59,9 @@ def create_collection(request):
             messages.error(request, 'المبلغ يجب أن يكون أكبر من صفر')
             return redirect('collectors:create')
 
-        if amount > buyer.current_balance:
-            messages.error(request, f'المبلغ ({amount}) أكبر من رصيد الرعوي ({buyer.current_balance})')
+        net = amount + discount
+        if net > buyer.current_balance:
+            messages.error(request, f'المبلغ ({amount}) + الخصم ({discount}) = {net} أكبر من رصيد الرعوي ({buyer.current_balance})')
             return redirect('collectors:create')
 
         last_receipt = CollectionReceipt.objects.order_by('-id').first()
@@ -68,13 +70,14 @@ def create_collection(request):
 
         receipt = CollectionReceipt.objects.create(
             receipt_number=receipt_number, buyer=buyer, payment_method=payment_method,
-            amount=amount, notes=notes, date=timezone.now().date(), created_by=request.user,
+            amount=amount, discount=discount, net_amount=net, notes=notes,
+            date=timezone.now().date(), created_by=request.user,
         )
 
-        # Update buyer balance
-        buyer.current_balance -= amount
+        # Update buyer balance - deduct amount + discount
+        buyer.current_balance -= net
         buyer.total_paid += amount
-        buyer.total_remaining -= amount
+        buyer.total_remaining -= net
         buyer.save()
 
         # Cash in
@@ -110,6 +113,8 @@ def print_collection(request, pk):
     """طباعة سند القبض"""
     receipt = get_object_or_404(CollectionReceipt, id=pk, is_deleted=False)
     settings = SystemSettings.get_settings()
+    discount_line = f'<p style="color:#c62828;">الخصم: -{receipt.discount}</p>' if receipt.discount else ''
+    net = receipt.net_amount if receipt.net_amount else receipt.amount
     html = f"""<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8">
     <style>@media print {{ body {{ width: 58mm; font-size: 10px; }} }}
     body {{ font-family: sans-serif; margin: 0; padding: 5px; }}
@@ -122,9 +127,12 @@ def print_collection(request, pk):
     <p>رقم: {receipt.receipt_number}</p>
     <p>الرعوي: {receipt.buyer.name}</p>
     <p>المبلغ: {receipt.amount}</p>
+    {discount_line}
+    <p style="font-weight:bold;">الصافي: {net}</p>
     <p>الطريقة: {receipt.get_payment_method_display()}</p>
     <p>التاريخ: {receipt.date}</p>
     <p>الموظف: {receipt.created_by}</p>
+    <p>الرصيد الحالي: {receipt.buyer.current_balance}</p>
     </div>
     <div class="total"><p>شكراً لكم</p></div>
     </body></html>"""

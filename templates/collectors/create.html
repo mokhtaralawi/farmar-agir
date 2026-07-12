@@ -27,8 +27,18 @@
 
         <div class="form-group">
             <label>المبلغ *</label>
-            <input type="number" name="amount" class="form-control" step="0.01" min="0" required
+            <input type="number" name="amount" id="amountInput" class="form-control" step="0.01" min="0" required
                 placeholder="أدخل المبلغ">
+        </div>
+
+        <div class="form-group">
+            <label>الخصم</label>
+            <input type="number" name="discount" id="discountInput" class="form-control" step="0.01" min="0" value="0"
+                placeholder="مبلغ الخصم (اختياري)">
+        </div>
+
+        <div style="font-size:18px;font-weight:700;color:#1565C0;text-align:center;margin:10px 0;">
+            الصافي المخصوم من الرصيد: <span id="netTotal">0</span>
         </div>
 
         <div class="form-group">
@@ -90,6 +100,15 @@
     });
 
     searchEl.addEventListener('blur', function() { setTimeout(function() { dd.style.display = 'none'; }, 200); });
+
+    function updateNet() {
+        var amount = parseFloat(document.getElementById('amountInput').value) || 0;
+        var discount = parseFloat(document.getElementById('discountInput').value) || 0;
+        document.getElementById('netTotal').textContent = (amount + discount).toFixed(2);
+    }
+    document.getElementById('amountInput').addEventListener('input', updateNet);
+    document.getElementById('discountInput').addEventListener('input', updateNet);
+    updateNet();
 </script>
 
 {% endblock %}

@@ -84,6 +84,9 @@
                 <a href="{% url 'receiving:print' invoice.id %}" target="_blank" class="btn btn-sm btn-info">
                     <i class="bi bi-printer"></i>
                 </a>
+                <a href="{% url 'receiving:edit' invoice.id %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i>
+                </a>
                 <a href="{% url 'receiving:detail' invoice.id %}" class="btn btn-sm btn-light">
                     <i class="bi bi-eye"></i>
                 </a>

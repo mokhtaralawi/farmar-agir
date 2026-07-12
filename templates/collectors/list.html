@@ -15,6 +15,8 @@
             <th>رقم السند</th>
             <th>الرعوي</th>
             <th>المبلغ</th>
+            <th>الخصم</th>
+            <th>الصافي</th>
             <th>الطريقة</th>
             <th>التاريخ</th>
             <th>إجراءات</th>
@@ -24,6 +26,8 @@
             <td><strong>{{ receipt.receipt_number }}</strong></td>
             <td>{{ receipt.buyer.name }}</td>
             <td>{{ receipt.amount }}</td>
+            <td>{% if receipt.discount %}{{ receipt.discount }}{% else %}-{% endif %}</td>
+            <td>{% if receipt.net_amount %}{{ receipt.net_amount }}{% else %}{{ receipt.amount }}{% endif %}</td>
             <td>{{ receipt.get_payment_method_display }}</td>
             <td>{{ receipt.date }}</td>
             <td>
@@ -34,7 +38,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6" class="empty-state"><i class="bi bi-inbox"></i>
+            <td colspan="8" class="empty-state"><i class="bi bi-inbox"></i>
                 <p>لا توجد سندات</p>
             </td>
         </tr>

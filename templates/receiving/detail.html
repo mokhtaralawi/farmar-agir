@@ -7,9 +7,14 @@
 <div class="card">
     <div class="card-header">
         <span class="card-title">معلومات الفاتورة</span>
-        <a href="{% url 'receiving:print' invoice.id %}" target="_blank" class="btn btn-sm btn-info">
-            <i class="bi bi-printer"></i> طباعة
-        </a>
+        <div>
+            <a href="{% url 'receiving:edit' invoice.id %}" class="btn btn-sm btn-warning">
+                <i class="bi bi-pencil"></i> تعديل
+            </a>
+            <a href="{% url 'receiving:print' invoice.id %}" target="_blank" class="btn btn-sm btn-info">
+                <i class="bi bi-printer"></i> طباعة
+            </a>
+        </div>
     </div>
     <table class="data-table">
         <tr>
@@ -31,6 +36,14 @@
         <tr>
             <td><strong>الإجمالي</strong></td>
             <td><strong>{{ invoice.total_amount }}</strong></td>
+        </tr>
+        <tr>
+            <td><strong>الخصم</strong></td>
+            <td>{% if invoice.discount %}{{ invoice.discount }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr>
+            <td><strong>الصافي</strong></td>
+            <td><strong>{% if invoice.net_amount %}{{ invoice.net_amount }}{% else %}{{ invoice.total_amount }}{% endif %}</strong></td>
         </tr>
         <tr>
             <td><strong>الحالة</strong></td>
