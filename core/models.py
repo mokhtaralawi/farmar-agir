@@ -269,3 +269,40 @@ class Bank(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.account_number}"
+
+
+class ActivityLog(models.Model):
+    """سجل النشاطات"""
+    ACTION_CHOICES = [
+        ('LOGIN', _('تسجيل دخول')),
+        ('LOGOUT', _('تسجيل خروج')),
+        ('SALES_CREATE', _('إنشاء فاتورة بيع')),
+        ('RECEIVING_CREATE', _('إنشاء فاتورة استلام')),
+        ('RECEIVING_EDIT', _('تعديل فاتورة استلام')),
+        ('COLLECTION_CREATE', _('إنشاء سند قبض')),
+        ('PAYMENT_CREATE', _('إنشاء سند صرف')),
+        ('SETTLEMENT_CREATE', _('إنشاء تسوية')),
+        ('PRODUCT_CREATE', _('إضافة صنف')),
+        ('PARTNER_CREATE', _('إضافة شريك')),
+        ('INVENTORY_ADJUST', _('تعديل مخزون')),
+        ('EXPENSE_CREATE', _('تسجيل مصروف')),
+        ('SETTINGS_CHANGE', _('تعديل إعدادات')),
+        ('USER_CREATE', _('إضافة مستخدم')),
+    ]
+
+    user = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True,
+                              verbose_name=_('المستخدم'))
+    action = models.CharField(_('العملية'), max_length=30, choices=ACTION_CHOICES)
+    description = models.TextField(_('الوصف'))
+    reference_type = models.CharField(_('نوع المرجع'), max_length=50, blank=True)
+    reference_id = models.PositiveIntegerField(_('رقم المرجع'), null=True, blank=True)
+    ip_address = models.GenericIPAddressField(_('عنوان IP'), null=True, blank=True)
+    created_at = models.DateTimeField(_('التاريخ'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('سجل نشاط')
+        verbose_name_plural = _('سجل النشاطات')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_action_display()} - {self.user} - {self.created_at}"

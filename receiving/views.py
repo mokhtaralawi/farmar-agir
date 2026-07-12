@@ -125,6 +125,8 @@ def create_receiving(request):
             pass
 
         messages.success(request, f'تم إنشاء فاتورة استلام {invoice_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'RECEIVING_CREATE', f'إنشاء فاتورة استلام {invoice_number} من الرعوي {farmer.name} بقيمة {net}', 'ReceivingInvoice', invoice.id)
         return redirect('receiving:print', invoice.id)
 
     return render(request, 'receiving/create.html', {
@@ -164,6 +166,8 @@ def edit_receiving(request, pk):
         farmer.save()
 
         messages.success(request, f'تم تعديل فاتورة {invoice.invoice_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'RECEIVING_EDIT', f'تعديل فاتورة استلام {invoice.invoice_number} - الخصم: {discount} - الصافي: {net}', 'ReceivingInvoice', invoice.id)
         return redirect('receiving:detail', invoice.id)
 
     return render(request, 'receiving/edit.html', {

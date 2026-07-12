@@ -7,7 +7,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import SystemSettings, Warehouse, Branch
+from .models import SystemSettings, Warehouse, Branch, ActivityLog
 
 
 def manifest_view(request):
@@ -155,3 +155,37 @@ def warehouse_toggle(request, pk):
     status = 'تفعيل' if warehouse.is_active else 'تعطيل'
     messages.success(request, f'تم {status} مخزن "{warehouse.name}"')
     return redirect('core:warehouses')
+
+
+@login_required
+def activity_log(request):
+    """سجل النشاطات - للمدير فقط"""
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, 'ليس لديك صلاحية الوصول')
+        return redirect('reports:dashboard')
+
+    logs = ActivityLog.objects.select_related('user').all()
+
+    action_filter = request.GET.get('action')
+    user_filter = request.GET.get('user')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+    if user_filter:
+        logs = logs.filter(user_id=user_filter)
+    if date_from:
+        logs = logs.filter(created_at__date__gte=date_from)
+    if date_to:
+        logs = logs.filter(created_at__date__lte=date_to)
+
+    logs = logs[:200]
+
+    from accounts.models import User
+    return render(request, 'core/activity_log.html', {
+        'logs': logs,
+        'action_choices': ActivityLog.ACTION_CHOICES,
+        'users': User.objects.filter(is_active=True),
+        'filters': {'action': action_filter, 'user': user_filter, 'date_from': date_from, 'date_to': date_to},
+    })

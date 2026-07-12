@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}سجل النشاطات - نظام المجابرة{% endblock %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;"><i class="bi bi-clock-history"></i> سجل النشاطات</h2>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:15px;">
+    <form method="get" class="form-row">
+        <div class="form-group">
+            <label>العملية</label>
+            <select name="action" class="form-control">
+                <option value="">الكل</option>
+                {% for value, label in action_choices %}
+                <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>المستخدم</label>
+            <select name="user" class="form-control">
+                <option value="">الكل</option>
+                {% for u in users %}
+                <option value="{{ u.id }}" {% if filters.user == u.id|stringformat:"d" %}selected{% endif %}>{{ u.full_name|default:u.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>من تاريخ</label>
+            <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+        </div>
+        <div class="form-group">
+            <label>إلى تاريخ</label>
+            <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> بحث
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <table class="data-table">
+        <tr>
+            <th>التاريخ</th>
+            <th>المستخدم</th>
+            <th>العملية</th>
+            <th>الوصف</th>
+            <th>IP</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td style="white-space:nowrap;">{{ log.created_at|date:"Y-m-d H:i" }}</td>
+            <td><strong>{% if log.user %}{{ log.user.full_name|default:log.user.username }}{% else %}-{% endif %}</strong></td>
+            <td>
+                {% if log.action == 'LOGIN' %}
+                <span class="badge badge-success">{{ log.get_action_display }}</span>
+                {% elif log.action == 'LOGOUT' %}
+                <span class="badge badge-secondary">{{ log.get_action_display }}</span>
+                {% elif log.action == 'SALES_CREATE' %}
+                <span class="badge badge-info">{{ log.get_action_display }}</span>
+                {% elif log.action == 'RECEIVING_CREATE' or log.action == 'RECEIVING_EDIT' %}
+                <span class="badge badge-primary">{{ log.get_action_display }}</span>
+                {% elif log.action == 'COLLECTION_CREATE' %}
+                <span class="badge badge-warning">{{ log.get_action_display }}</span>
+                {% elif log.action == 'PAYMENT_CREATE' %}
+                <span class="badge badge-danger">{{ log.get_action_display }}</span>
+                {% else %}
+                <span class="badge badge-light">{{ log.get_action_display }}</span>
+                {% endif %}
+            </td>
+            <td>{{ log.description }}</td>
+            <td style="font-size:11px;color:#888;">{{ log.ip_address|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>لا توجد سجلات</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

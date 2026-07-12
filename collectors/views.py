@@ -101,6 +101,8 @@ def create_collection(request):
             pass
 
         messages.success(request, f'تم إنشاء سند قبض {receipt_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'COLLECTION_CREATE', f'إنشاء سند قبض {receipt_number} من المقوت {buyer.name} بقيمة {amount}' + (f' (خصم: {discount})' if discount else ''), 'CollectionReceipt', receipt.id)
         return redirect('collectors:print', receipt.id)
 
     return render(request, 'collectors/create.html', {

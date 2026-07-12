@@ -99,6 +99,8 @@ def create_payment(request):
             pass
 
         messages.success(request, f'تم إنشاء سند صرف {voucher_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'PAYMENT_CREATE', f'إنشاء سند صرف {voucher_number} للرعوي {farmer.name} بقيمة {amount}', 'PaymentVoucher', voucher.id)
         return redirect('payments:print', voucher.id)
 
     return render(request, 'payments/create.html', {
@@ -236,6 +238,8 @@ def create_settlement(request):
         farmer.save()
 
         messages.success(request, f'تم إنشاء تسوية {settlement_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'SETTLEMENT_CREATE', f'إنشاء تسوية {settlement_number} للرعوي {farmer.name} بقيمة {net_payable}', 'Settlement', settlement.id)
         return redirect('payments:settlements')
 
     return render(request, 'payments/create_settlement.html', {

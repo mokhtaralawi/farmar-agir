@@ -20,6 +20,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            from core.activity import log_activity
+            log_activity(request, 'LOGIN', f'{user.username} قام بتسجيل الدخول')
             if not request.POST.get('remember_me'):
                 request.session.set_expiry(0)
             return redirect('reports:dashboard')
@@ -31,6 +33,8 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
+    from core.activity import log_activity
+    log_activity(request, 'LOGOUT', f'{request.user.username} قام بتسجيل الخروج')
     logout(request)
     return redirect('accounts:login')
 

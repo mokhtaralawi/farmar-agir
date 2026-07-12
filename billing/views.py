@@ -146,6 +146,8 @@ def create_sale(request):
             pass
 
         messages.success(request, f'تم إنشاء فاتورة بيع {invoice_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'SALES_CREATE', f'إنشاء فاتورة بيع {invoice_number} للرعوي {buyer.name} بقيمة {invoice.net_amount}', 'SalesInvoice', invoice.id)
         return redirect('billing:print', invoice.id)
 
     return render(request, 'billing/create.html', {
