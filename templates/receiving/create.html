@@ -63,7 +63,7 @@
                     </select>
                 </td>
                 <td>
-                    <select name="items[]" class="form-control unit-select" required>
+                    <select name="items[]" class="form-control unit-select">
                         <option value="">الوحدة</option>
                         {% for u in units %}
                         <option value="{{ u.id }}">{{ u.name }}</option>

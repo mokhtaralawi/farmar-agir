@@ -80,7 +80,8 @@ def create_sale(request):
         for item_data in items:
             parts = item_data.split('|')
             product = Product.objects.get(id=parts[0])
-            unit = Unit.objects.get(id=parts[1])
+            unit_id = parts[1].strip() if len(parts) > 1 else ''
+            unit = Unit.objects.get(id=unit_id) if unit_id else None
             quantity = Decimal(parts[2])
             price = Decimal(parts[3])
             discount = Decimal(parts[4] or '0')
