@@ -277,6 +277,7 @@ class ActivityLog(models.Model):
         ('LOGIN', _('تسجيل دخول')),
         ('LOGOUT', _('تسجيل خروج')),
         ('SALES_CREATE', _('إنشاء فاتورة بيع')),
+        ('SALES_EDIT', _('تعديل فاتورة بيع')),
         ('RECEIVING_CREATE', _('إنشاء فاتورة استلام')),
         ('RECEIVING_EDIT', _('تعديل فاتورة استلام')),
         ('COLLECTION_CREATE', _('إنشاء سند قبض')),

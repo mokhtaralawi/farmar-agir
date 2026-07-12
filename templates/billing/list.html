@@ -73,6 +73,9 @@
                 <a href="{% url 'billing:print' invoice.id %}" target="_blank" class="btn btn-sm btn-info">
                     <i class="bi bi-printer"></i>
                 </a>
+                <a href="{% url 'billing:edit' invoice.id %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i>
+                </a>
             </td>
         </tr>
         {% empty %}

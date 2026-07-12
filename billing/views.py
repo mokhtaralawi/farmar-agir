@@ -130,7 +130,8 @@ def create_sale(request):
 
         invoice.total_amount = invoice_total
         invoice.total_discount = invoice_discount
-        invoice.net_amount = invoice_total - invoice_discount
+        invoice.discount = Decimal(request.POST.get('discount', 0) or 0)
+        invoice.net_amount = invoice_total - invoice_discount - invoice.discount
         invoice.save()
 
         # Update buyer balance
@@ -161,6 +162,44 @@ def create_sale(request):
 
 
 @login_required
+@transaction.atomic
+def edit_sale(request, pk):
+    """تعديل فاتورة بيع"""
+    invoice = get_object_or_404(SalesInvoice, id=pk, is_deleted=False)
+    old_net = invoice.net_amount
+    old_discount = invoice.discount
+
+    if request.method == 'POST':
+        discount = Decimal(request.POST.get('discount', 0) or 0)
+        notes = request.POST.get('notes', '')
+
+        total_after_item_discounts = invoice.total_amount - invoice.total_discount
+        if discount > total_after_item_discounts:
+            discount = total_after_item_discounts
+
+        new_net = invoice.total_amount - invoice.total_discount - discount
+        invoice.discount = discount
+        invoice.net_amount = new_net
+        invoice.notes = notes
+        invoice.save()
+
+        buyer = invoice.buyer
+        buyer.current_balance = buyer.current_balance - old_net + new_net
+        buyer.total_purchases = buyer.total_purchases - old_net + new_net
+        buyer.total_remaining = buyer.total_remaining - old_net + new_net
+        buyer.save()
+
+        messages.success(request, f'تم تعديل فاتورة {invoice.invoice_number} بنجاح')
+        from core.activity import log_activity
+        log_activity(request, 'SALES_EDIT', f'تعديل فاتورة بيع {invoice.invoice_number} للرعوي {buyer.name}', 'SalesInvoice', invoice.id)
+        return redirect('billing:list')
+
+    return render(request, 'billing/edit.html', {
+        'invoice': invoice,
+    })
+
+
+@login_required
 def print_sale(request, pk):
     """طباعة فاتورة البيع"""
     invoice = get_object_or_404(SalesInvoice, id=pk, is_deleted=False)
@@ -181,7 +220,7 @@ def print_sale(request, pk):
     <p style="text-align:center;font-size:9px;">التاريخ: {invoice.date}</p>
     <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الإجمالي</th></tr></thead>
     <tbody>{''.join(f'<tr><td>{i.product.name}</td><td>{i.quantity}</td><td>{i.unit_price}</td><td>{i.discount}</td><td>{i.total}</td></tr>' for i in invoice.items.all())}</tbody></table>
-    <div class="total"><p>الإجمالي: {invoice.total_amount}</p><p>الخصم: {invoice.total_discount}</p><p>الصافي: {invoice.net_amount}</p></div>
+    <div class="total"><p>الإجمالي: {invoice.total_amount}</p><p>خصم الأصناف: {invoice.total_discount}</p>{f'<p style="color:#c62828;">خصم الفاتورة: -{invoice.discount}</p>' if invoice.discount else ''}<p>الصافي: {invoice.net_amount}</p></div>
     <div class="balance">
         <p>المبلغ عليه: {invoice.net_amount}</p>
         <p>الرصيد الحالي: {buyer.current_balance}</p>
