@@ -150,22 +150,6 @@
     buyerSearch.addEventListener('blur', function() {
         setTimeout(function() { buyerDropdown.style.display = 'none'; }, 200);
     });
-            buyerList.appendChild(div);
-        });
-        buyerList.style.display = 'block';
-    });
-
-    buyerSearch.addEventListener('blur', function() {
-        setTimeout(function() { buyerList.style.display = 'none'; }, 150);
-    });
-            buyerList.appendChild(div);
-        });
-        buyerList.style.display = 'block';
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.autocomplete-wrapper')) buyerList.style.display = 'none';
-    });
 
     function addRow() {
         const table = document.getElementById('itemsTable');
