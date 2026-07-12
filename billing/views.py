@@ -9,6 +9,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
 from decimal import Decimal
+import json
 from .models import SalesInvoice, SalesItem, SalesReturn, SalesReturnItem
 from partners.models import Buyer
 from core.models import Warehouse, SystemSettings
@@ -145,7 +146,7 @@ def create_sale(request):
         'products': Product.objects.filter(is_active=True),
         'units': Unit.objects.filter(is_active=True),
         'today': timezone.now().strftime('%Y-%m-%d'),
-        'buyers_json': list(Buyer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')),
+        'buyers_json': json.dumps(list(Buyer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')), default=str),
     })
 
 

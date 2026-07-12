@@ -111,8 +111,8 @@
         const matches = farmersData.filter(f => f.name.toLowerCase().includes(q) || f.code.toLowerCase().includes(q));
         if (matches.length === 0) { farmerList.style.display = 'none'; return; }
         const rect = this.getBoundingClientRect();
-        farmerList.style.top = (rect.bottom + window.scrollY) + 'px';
-        farmerList.style.left = (rect.left + window.scrollX) + 'px';
+        farmerList.style.top = rect.bottom + 'px';
+        farmerList.style.left = rect.left + 'px';
         farmerList.style.width = rect.width + 'px';
         matches.forEach(f => {
             const div = document.createElement('div');

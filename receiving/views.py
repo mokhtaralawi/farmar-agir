@@ -9,6 +9,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
 from decimal import Decimal
+import json
 from .models import ReceivingInvoice, ReceivingItem, ReturnInvoice, ReturnItem
 from partners.models import Farmer
 from core.models import Warehouse, SystemSettings
@@ -125,7 +126,7 @@ def create_receiving(request):
         'products': Product.objects.filter(is_active=True),
         'units': Unit.objects.filter(is_active=True),
         'today': timezone.now().strftime('%Y-%m-%d'),
-        'farmers_json': list(Farmer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')),
+        'farmers_json': json.dumps(list(Farmer.objects.filter(status='ACTIVE').values('id', 'name', 'code', 'current_balance')), default=str),
     })
 
 

@@ -113,8 +113,8 @@
         const matches = buyersData.filter(b => b.name.toLowerCase().includes(q) || b.code.toLowerCase().includes(q));
         if (matches.length === 0) { buyerList.style.display = 'none'; return; }
         const rect = this.getBoundingClientRect();
-        buyerList.style.top = (rect.bottom + window.scrollY) + 'px';
-        buyerList.style.left = (rect.left + window.scrollX) + 'px';
+        buyerList.style.top = rect.bottom + 'px';
+        buyerList.style.left = rect.left + 'px';
         buyerList.style.width = rect.width + 'px';
         matches.forEach(b => {
             const div = document.createElement('div');
