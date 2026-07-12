@@ -11,13 +11,8 @@
         <div class="form-row">
             <div class="form-group">
                 <label>الرعوي *</label>
-                <select name="farmer" class="form-control" required>
-                    <option value="">اختر الرعوي</option>
-                    {% for farmer in farmers %}
-                    <option value="{{ farmer.id }}">{{ farmer.code }} - {{ farmer.name }} (رصيد: {{
-                        farmer.current_balance }})</option>
-                    {% endfor %}
-                </select>
+                <input type="text" id="farmerSearch" class="form-control" placeholder="اكتب اسم الرعوي..." autocomplete="off">
+                <input type="hidden" name="farmer" id="farmerId" required>
             </div>
             <div class="form-group">
                 <label>طريقة الدفع</label>
@@ -48,5 +43,53 @@
         </div>
     </form>
 </div>
+
+<script>
+    var farmersData = [];
+    {% for f in farmers %}
+    farmersData.push({id: {{ f.id }}, name: "{{ f.name|escapejs }}", code: "{{ f.code }}", current_balance: "{{ f.current_balance }}"});
+    {% endfor %}
+
+    var searchEl = document.getElementById('farmerSearch');
+    var idEl = document.getElementById('farmerId');
+    var dd = document.createElement('div');
+    dd.className = 'autocomplete-list';
+    dd.style.display = 'none';
+    document.body.appendChild(dd);
+
+    searchEl.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        dd.innerHTML = '';
+        if (q.length < 1) { dd.style.display = 'none'; return; }
+        var matches = [];
+        for (var i = 0; i < farmersData.length; i++) {
+            var f = farmersData[i];
+            if (f.name.toLowerCase().indexOf(q) !== -1 || f.code.toLowerCase().indexOf(q) !== -1) matches.push(f);
+        }
+        if (matches.length === 0) { dd.style.display = 'none'; return; }
+        var rect = searchEl.getBoundingClientRect();
+        dd.style.top = (rect.bottom + window.scrollY) + 'px';
+        dd.style.left = (rect.left + window.scrollX) + 'px';
+        dd.style.width = rect.width + 'px';
+        for (var i = 0; i < matches.length; i++) {
+            var f = matches[i];
+            var div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.innerHTML = '<strong>' + f.code + '</strong> - ' + f.name + ' <span style="color:#888;font-size:12px;">رصيد: ' + f.current_balance + '</span>';
+            div.setAttribute('data-id', f.id);
+            div.setAttribute('data-name', f.name);
+            dd.appendChild(div);
+        }
+        dd.style.display = 'block';
+    });
+
+    dd.addEventListener('mousedown', function(ev) {
+        var t = ev.target;
+        while (t && !t.getAttribute('data-id')) t = t.parentElement;
+        if (t) { searchEl.value = t.getAttribute('data-name'); idEl.value = t.getAttribute('data-id'); dd.style.display = 'none'; }
+    });
+
+    searchEl.addEventListener('blur', function() { setTimeout(function() { dd.style.display = 'none'; }, 200); });
+</script>
 
 {% endblock %}
