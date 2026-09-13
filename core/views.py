@@ -15,7 +15,7 @@ def manifest_view(request):
     manifest = {
         "name": "نظام المجابرة",
         "short_name": "نظام المجابرة",
-        "description": "نظام إدارة سوق الخضروات والفواكه بالجملة",
+        "description": "نظام القيسي لحراج القات",
         "start_url": "/",
         "display": "standalone",
         "background_color": "#F5F5F5",

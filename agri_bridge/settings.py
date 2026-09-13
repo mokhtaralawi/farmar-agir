@@ -1,7 +1,7 @@
 """
 Django settings for agri_bridge project.
 
-Agri Bridge - نظام إدارة سوق الخضروات والفواكه بالجملة
+Agri Bridge - نظام القيسي لحراج القات
 """
 
 import os
@@ -247,7 +247,7 @@ os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 # PWA Settings
 PWA_NAME = 'نظام المجابرة'
 PWA_SHORT_NAME = 'نظام المجابرة'
-PWA_DESCRIPTION = 'نظام إدارة سوق الخضروات والفواكه بالجملة'
+PWA_DESCRIPTION = 'نظام القيسي لحراج القات'
 PWA_THEME_COLOR = '#1e40af'
 PWA_BACKGROUND_COLOR = '#ffffff'
 PWA_DISPLAY = 'standalone'
